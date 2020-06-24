@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Vancouver Meteor Radar Experiment</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <h1>Vancouver Meteor Radar Experiment</h1>
+        <p>Last updated ${db['last_updated']}</p>
+        <table>
+            <tr>
+                <th>Time</th>
+                <th>Power (dB)</th>
+                <th>Frequency (MHz)</th>
+            </tr>
+            % for e in reversed(sorted(db['events'], key=lambda k: k['datetime_str'])):
+                <tr>
+                    <td><a href="event${e['id']}_${e['datetime_str']}.html">${e["datetime_readable"]}</a></td>
+                    <td>${'{0:.1f}'.format(e["power"])}</td>
+                    <td>${'{0:.3f}'.format(db['files'][e["file_path"]]["params"]["center_frequency"]/1E6)}</td>
+                </tr>
+            % endfor
+        </table>
+    </body>
+</html>
