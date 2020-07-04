@@ -99,5 +99,6 @@ def analyze(db):
                     "id": len(db['events']),
                     "power": power[i],
                     "datetime_readable": datetime_event.strftime("%Y-%m-%d %H:%M:%S"),
-                    "datetime_str": datetime_event.strftime('%Y-%m-%d_%H-%M-%S')
+                    "datetime_str": datetime_event.strftime('%Y-%m-%d_%H-%M-%S'),
+                    "interference": False,
                 })

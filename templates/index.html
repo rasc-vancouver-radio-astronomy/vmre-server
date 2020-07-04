@@ -13,13 +13,15 @@
                 <th>Power (dB)</th>
                 <th>Frequency (MHz)</th>
             </tr>
-            % for e in reversed(sorted(db['events'], key=lambda k: k['datetime_str'])):
-                <tr>
-                    <td><a href="event${e['id']}_${e['datetime_str']}.html">${e["datetime_readable"]}</a></td>
-                    <td>${'{0:.1f}'.format(e["power"])}</td>
-                    <td>${'{0:.3f}'.format(db['files'][e["file_path"]]["params"]["center_frequency"]/1E6)}</td>
-                </tr>
-            % endfor
+% for e in reversed(sorted(db['events'], key=lambda k: k['datetime_str'])):
+    % if not e['interference']:
+            <tr>
+                <td><a href="event${e['id']}_${e['datetime_str']}.html">${e["datetime_readable"]}</a></td>
+                <td>${'{0:.1f}'.format(e["power"])}</td>
+                <td>${'{0:.3f}'.format(db['files'][e["file_path"]]["params"]["center_frequency"]/1E6)}</td>
+            </tr>
+    % endif
+% endfor
         </table>
     </body>
 </html>

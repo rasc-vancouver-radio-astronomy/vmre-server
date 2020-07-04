@@ -10,21 +10,21 @@
         <table>
             <tr>
                 <td>
-                    % if prev_event is not None:
-                        <a href="event${prev_event['id']}_${prev_event['datetime_str']}.html">Prev</a><br>
-                    % else:
-                        Prev
-                    % endif
+% if prev_event is not None:
+                    <a href="event${prev_event['id']}_${prev_event['datetime_str']}.html">Prev</a><br>
+% else:
+                    Prev
+% endif
                 </td>
                 <td>
                     <a href="index.html">Home</a><br>
                 </td>
                 <td>
-                    % if next_event is not None:
-                        <a href="event${next_event['id']}_${next_event['datetime_str']}.html">Next</a><br>
-                    % else:
-                        Next
-                    % endif
+% if next_event is not None:
+                    <a href="event${next_event['id']}_${next_event['datetime_str']}.html">Next</a><br>
+% else:
+                    Next
+% endif
                 </td>
             </tr>
         </table>

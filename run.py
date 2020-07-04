@@ -34,6 +34,7 @@ def main():
     else:
         print(f"VMRE database found. Loading database.")
         db = json.load(open("vmre_db.json", "r"))
+    print()
 
     print(f"Fetching data. Time is {time.time() - start_time}.")
     fetch()

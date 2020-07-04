@@ -15,9 +15,11 @@ def plot(db):
 
     os.makedirs("site", exist_ok=True)
 
+    plt.style.use("dark_background")
+
     for event_id, event in enumerate(db["events"]):
 
-        if "plots" in event:
+        if "plots" in event or event["interference"]:
             continue
 
         print(f"Plotting event ID {event_id} ({event['file_path']}:{event['file_index']}).")
