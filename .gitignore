@@ -1,5 +1,9 @@
 site/*
+site
 data/*
+data
 __pycache__
 vmre_db.json
+config.py
+vmre.log
 

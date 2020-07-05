@@ -1,6 +1,7 @@
 import datetime
 import math
 import os
+import sys
 
 import colorcet as cc
 import matplotlib
@@ -19,7 +20,11 @@ def plot(db):
 
     for event_id, event in enumerate(db["events"]):
 
-        if "plots" in event or event["interference"]:
+        if "recreate_plots" not in sys.argv:
+            if "plots" in event:
+                continue
+
+        if event["interference"]:
             continue
 
         print(f"Plotting event ID {event_id} ({event['file_path']}:{event['file_index']}).")
@@ -36,11 +41,11 @@ def plot(db):
 
         iq_len = os.path.getsize(event["file_path"]) // 8
 
-        index_t0 = int(i*dt*bw - 15*bw)
+        index_t0 = int(i*dt*bw - 5*bw)
         if index_t0 < 0:
             index_t0 = 0
 
-        index_t1 = int(i*dt*bw + 15*bw)
+        index_t1 = int(i*dt*bw + 25*bw)
         if index_t1 > iq_len:
             index_t1 = iq_len
 
@@ -55,7 +60,7 @@ def plot(db):
         for NFFT in config.NFFTs:
 
             plt.figure(figsize=(10,8))
-            Pxx, freqs, bins, im = plt.specgram(iq_slice, NFFT=NFFT, Fs=bw, noverlap=NFFT/2, cmap=cc.cm.bmw, xextent=(-15, 15))
+            Pxx, freqs, bins, im = plt.specgram(iq_slice, NFFT=NFFT, Fs=bw, noverlap=NFFT/2, cmap=cc.cm.bmw, xextent=(-5, 25))
 
             plt.ylabel("Doppler shift (Hz)")
             plt.xlabel("Time (sec)")
