@@ -10,14 +10,15 @@ def analyze(db):
 
     for receiver in config.receivers:
 
-        for filename in sorted(os.listdir(f"data/{receiver['ip']}")):
+        for filename in sorted(os.listdir(receiver["data_path"])):
 
             if os.path.splitext(filename)[1] != ".json":
                 continue
 
-            base_filename = os.path.splitext(f"data/{receiver['ip']}/{filename}")[0]
+            base_filename = os.path.splitext(f"{receiver['data_path']}/{filename}")[0]
             json_filename = base_filename + ".json"
             iq_filename = base_filename + ".dat"
+            csv_filename = "site/" + os.path.split(base_filename)[1] + ".csv"
 
             if not os.path.exists(iq_filename):
                 print(f"{iq_filename} is missing!")
@@ -29,7 +30,7 @@ def analyze(db):
             if iq_filename not in db["files"]:
                 db["files"][iq_filename] = {}
 
-            print(f"Analyzing {iq_filename} from {receiver['ip']}.")
+            print(f"Analyzing {iq_filename}.")
 
             params = json.load(open(json_filename, "r"))
             db["files"][iq_filename]["params"] = params
@@ -67,6 +68,10 @@ def analyze(db):
                     fft[j] = -np.Inf
 
                 power[i] = (max(fft) - np.median(fft))
+
+            with open(csv_filename, "w") as f:
+                for p in power:
+                    f.write(f"{p}\n")
 
             #ind = np.argpartition(power, -5)[-5:]
             ind = []

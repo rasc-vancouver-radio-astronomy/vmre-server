@@ -14,8 +14,6 @@ import config
 
 def plot(db):
 
-    os.makedirs("site", exist_ok=True)
-
     plt.style.use("dark_background")
 
     for event_id, event in enumerate(db["events"]):

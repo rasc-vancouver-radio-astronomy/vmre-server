@@ -36,9 +36,7 @@ def main():
         db = json.load(open("vmre_db.json", "r"))
     print()
 
-    print(f"Fetching data. Time is {time.time() - start_time}.")
-    fetch()
-    print()
+    os.makedirs("site", exist_ok=True)
 
     print(f"Analyzing data. Time is {time.time() - start_time}.")
     analyze(db)
