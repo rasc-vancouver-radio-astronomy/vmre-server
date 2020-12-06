@@ -7,12 +7,14 @@
     <body>
         <h1>Vancouver Meteor Radar Experiment</h1>
         <p>Last updated ${db['last_updated']}</p>
+        <p>Analyzing last ${config.analyze_days} days worth of data.</p>
         <p>Events in database: ${len(db['events'])}</p>
         <table>
             <tr>
                 <th>Time</th>
                 <th>Power (dB)</th>
                 <th>Frequency (MHz)</th>
+                <th>Station Operator</th>
             </tr>
 % for e in reversed(sorted(db['events'], key=lambda k: k['datetime_str'])):
     % if not e['interference']:
@@ -20,6 +22,7 @@
                 <td><a href="event${e['id']}_${e['datetime_str']}.html">${e["datetime_readable"]}</a></td>
                 <td>${'{0:.1f}'.format(e["power"])}</td>
                 <td>${'{0:.3f}'.format(db['files'][e["file_path"]]["params"]["center_frequency"]/1E6)}</td>
+                <td>${db["files"][e["file_path"]]["params"]["station_owner"]}</td>
             </tr>
     % endif
 % endfor

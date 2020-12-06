@@ -16,14 +16,20 @@ def plot(db):
 
     plt.style.use("dark_background")
 
-    for event_id, event in enumerate(db["events"]):
+    summary_events = []
+
+    for event in db["events"]:
+
+        event_id = event["id"]
+
+        if event["interference"]:
+            continue
+
+        summary_events.append(event)
 
         if "recreate_plots" not in sys.argv:
             if "plots" in event:
                 continue
-
-        if event["interference"]:
-            continue
 
         print(f"Plotting event ID {event_id} ({event['file_path']}:{event['file_index']}).")
 
@@ -58,14 +64,14 @@ def plot(db):
         for NFFT in config.NFFTs:
 
             plt.figure(figsize=(10,8))
-            Pxx, freqs, bins, im = plt.specgram(iq_slice, NFFT=NFFT, Fs=bw, noverlap=NFFT/2, cmap=cc.cm.bmw, xextent=(-5, 25))
+            Pxx, freqs, bins, im = plt.specgram(iq_slice, NFFT=NFFT, Fs=bw, noverlap=NFFT/2, cmap=cc.cm.bmw, xextent=(-config.spec_start, config.spec_width-config.spec_start))
 
             plt.ylabel("Doppler shift (Hz)")
             plt.xlabel("Time (sec)")
-            plt.title(event['datetime_readable'])
+            plt.title(f"VMRE event {event_id} {event['datetime_readable']}")
 
-            vmin = -110
-            vmax = -90
+            vmin = 10 * np.log10(np.median(Pxx))
+            vmax = 10 * np.log10(np.max(Pxx))
             im.set_clim(vmin=vmin, vmax=vmax)
 
             plot_path = f"site/event{event_id}_{event['datetime_str']}_FFT{NFFT}.png"
@@ -80,3 +86,16 @@ def plot(db):
             event["plots"]["spectrum"][NFFT] = {
                 "path": plot_path
             }
+
+    plt.figure(figsize=(10,8))
+    plt.ylabel("Power (dB)")
+    plt.xlabel("Date")
+    x = []
+    y = []
+    for event in summary_events:
+        x.append(datetime.datetime.strptime(event["datetime_str"], "%Y-%m-%d_%H-%M-%S").timestamp())
+        y.append(event["power"])
+    plt.plot(x, y, 'o')
+    plt.savefig(f"site/summary.png")
+    plt.close()
+

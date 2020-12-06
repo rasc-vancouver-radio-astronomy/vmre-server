@@ -6,4 +6,5 @@ __pycache__
 vmre_db.json
 config.py
 vmre.log
+run.sh
 

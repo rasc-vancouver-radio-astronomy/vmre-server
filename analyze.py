@@ -8,7 +8,14 @@ import config
 
 def analyze(db):
 
+    highest_event_id = -1
+    for e in db["events"]:
+        if e["id"] > highest_event_id:
+            highest_event_id = e["id"]
+
     for receiver in config.receivers:
+
+        print(f"Analyzing files for receiver {receiver}")
 
         for filename in sorted(os.listdir(receiver["data_path"])):
 
@@ -24,20 +31,29 @@ def analyze(db):
                 print(f"{iq_filename} is missing!")
                 continue
 
-            if iq_filename in db["files"] and os.path.getmtime(json_filename) < os.path.getmtime("vmre_db.json"):
+            if iq_filename in db["files"] and os.path.getsize(iq_filename) == db["files"][iq_filename]["size"]:
+                print(f"Skipping {iq_filename} because file size matches database.")
+                continue
+
+            params = json.load(open(json_filename, "r"))
+            datetime_started = datetime.datetime.strptime(params["datetime_started"], "%Y-%m-%d_%H-%M-%S.%f")
+            today = datetime.datetime.now()
+            td = today - datetime_started
+            if td.days > config.analyze_days:
+                print(f"Skipping {iq_filename} because it's older than {config.analyze_days} days.")
                 continue
 
             if iq_filename not in db["files"]:
-                db["files"][iq_filename] = {}
+                print(f"Creating new DB entry for {iq_filename}.")
+                db["files"][iq_filename] = {"size": 0}
 
-            print(f"Analyzing {iq_filename}.")
-
-            params = json.load(open(json_filename, "r"))
             db["files"][iq_filename]["params"] = params
 
             # Extract parameters.
             bw = params["bandwidth"]
-            datetime_started = datetime.datetime.strptime(params["datetime_started"], "%Y-%m-%d_%H-%M-%S.%f")
+
+
+            print(f"Analyzing {iq_filename}.")
 
             notch_bw = config.notch_bw
             dt = config.dt
@@ -45,10 +61,12 @@ def analyze(db):
 
             index_dt = int(dt*bw)
             iq_len = os.path.getsize(iq_filename) // 8
+            start_index = db["files"][iq_filename]["size"] // 8
+            db["files"][iq_filename]["size"] = os.path.getsize(iq_filename)
             power = np.zeros(int(iq_len // index_dt))
             f = open(iq_filename, "rb")
 
-            for i in range(int(iq_len//index_dt)):
+            for i in range(start_index, int(iq_len//index_dt)):
 
                 f.seek(i*index_dt*8)
 
@@ -74,11 +92,60 @@ def analyze(db):
                     f.write(f"{p}\n")
 
             #ind = np.argpartition(power, -5)[-5:]
-            ind = []
-            for p in range(len(power)):
-                if power[p] > config.power_threshold:
-                    ind.append(p)
+            # ind = []
+            # for p in range(len(power)):
+            #     if power[p] > config.power_threshold:
+            #         ind.append(p)
             #ind = np.argwhere(power > 20)
+
+            # Author: William Wall
+
+            wrsig = 100
+            sn_thr = 8
+
+            rmean = power - power
+            rsig = power - power
+            rmed = power - power
+
+            for ii in range(len(power)):
+                bi = ii-wrsig
+                if bi < 0:
+                    bi = 0
+                ei = ii+wrsig+1
+                if ei > len(power):
+                    ei = len(power)
+                rmean[ii] = np.mean(power[bi:ei])
+                rsig[ii] = np.std(power[bi:ei])
+                rmed[ii] = np.median(power[bi:ei])
+
+            thresh = rmean + sn_thr*rsig
+            rdat = 1.*power
+            loc_thr = power > thresh
+            rdat[loc_thr] = rmed[loc_thr]
+            num_pk = len(np.where(loc_thr)[0])
+            num_pks = 1*num_pk
+
+            counter = 0
+            while num_pks != 0:
+                counter = counter + 1
+                for ii in range(len(rdat)):
+                    bi = ii-wrsig
+                    if bi < 0:
+                        bi = 0
+                    ei = ii+wrsig+1
+                    if ei > len(rdat):
+                        ei = len(rdat)
+                    rmean[ii] = np.mean(rdat[bi:ei])
+                    rsig[ii] = np.std(rdat[bi:ei])
+                    rmed[ii] = np.median(rdat[bi:ei])
+                thresh = rmean + sn_thr*rsig
+                loc_thr = rdat > thresh
+                rdat[loc_thr] = rmed[loc_thr]
+                num_pks = len(np.where(loc_thr)[0])
+
+            ind = np.where(power > thresh)[0].tolist()
+
+            # End of William's code.
 
             spec_width = 30
             spec_start = 5
@@ -98,10 +165,12 @@ def analyze(db):
             for i in ind:
                 datetime_event = datetime_started + datetime.timedelta(seconds=i*dt)
 
+                highest_event_id += 1
+
                 db["events"].append({
                     "file_path": iq_filename,
                     "file_index": i,
-                    "id": len(db['events']),
+                    "id": highest_event_id,
                     "power": power[i],
                     "datetime_readable": datetime_event.strftime("%Y-%m-%d %H:%M:%S"),
                     "datetime_str": datetime_event.strftime('%Y-%m-%d_%H-%M-%S'),

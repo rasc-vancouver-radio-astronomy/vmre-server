@@ -11,11 +11,30 @@ from fetch import fetch
 from plot import plot
 from pages import pages
 
+import config
+
 def print_box(s):
 
     print("#" * (len(s) + 4))
     print(f"# {s} #")
     print("#" * (len(s) + 4))
+
+def scrub(db):
+
+    events_to_delete = []
+
+    for event_id, event in enumerate(db["events"]):
+
+        datetime_event = datetime.strptime(event["datetime_str"], "%Y-%m-%d_%H-%M-%S")
+        today = datetime.now()
+        td = today - datetime_event
+        if td.days > config.analyze_days:
+            events_to_delete.append(event_id)
+
+    for event_id in events_to_delete:
+
+        print(f"Deleting event ID {event_id}.")
+        del db["events"][event_id]
 
 def main():
 
@@ -37,6 +56,10 @@ def main():
     print()
 
     os.makedirs("site", exist_ok=True)
+
+    print(f"Scrubbing database. Time is {time.time() - start_time}.")
+    scrub(db)
+    print()
 
     print(f"Analyzing data. Time is {time.time() - start_time}.")
     analyze(db)

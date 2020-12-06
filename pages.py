@@ -17,7 +17,7 @@ def create_index_page(db):
 
     index_template = Template(filename="templates/index.html")
     html_index = open("site/index.html", "w")
-    html_index.write(index_template.render(db=db))
+    html_index.write(index_template.render(db=db, config=config))
 
 def create_plot_pages(db):
 
@@ -25,23 +25,28 @@ def create_plot_pages(db):
 
     prev_event = None
 
-    event_id = 0
-    while event_id < len(db["events"]):
+    events_to_plot = []
 
-        event = db["events"][event_id]
+    for event in sorted(db["events"], key=lambda item: item["datetime_str"]):
 
         if event["interference"]:
-            event_id += 1
             continue
 
-        next_event_id = event_id + 1
-        next_event = None
+        events_to_plot.append(event)
 
-        while next_event_id < len(db["events"]) and db["events"][next_event_id]["interference"]:
-            next_event_id += 1
+    for i in range(len(events_to_plot)):
 
-        if next_event_id < len(db["events"]):
-            next_event = db["events"][next_event_id]
+        event = events_to_plot[i]
+
+        if i > 0:
+            prev_event = events_to_plot[i-1]
+        else:
+            prev_event = None
+
+        if i < len(events_to_plot)-1:
+            next_event = events_to_plot[i+1]
+        else:
+            next_event = None
 
         html_plot = open(f"site/event{event['id']}_{event['datetime_str']}.html", "w")
         html_plot.write(plot_template.render(
@@ -51,7 +56,4 @@ def create_plot_pages(db):
             next_event=next_event,
             config=config
         ))
-
-        prev_event = event
-        event_id += 1
 

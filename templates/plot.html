@@ -32,7 +32,7 @@
         <img id="plot" src="event${event['id']}_${event['datetime_str']}_FFT${config.default_fft}.png"><br>
 
         FFT:
-        <input id="fft" type="range" min="7" max="10" step="1" oninput="showFft(this.value)" onchange="showFft(this.value)" />
+        <input id="fft" type="range" min="8" max="10" step="1" oninput="showFft(this.value)" onchange="showFft(this.value)" />
         <span id="range">${config.default_fft}</span><br>
 
         <br>
@@ -47,16 +47,8 @@
                 <td>${'{0:.3f}'.format(db['files'][event["file_path"]]["params"]["center_frequency"]/1E6)} MHz</td>
             </tr>
             <tr>
-                <td>Station Owner</td>
+                <td>Station Operator</td>
                 <td>${db['files'][event['file_path']]['params']['station_owner']}</td>
-            </tr>
-            <tr>
-                <td>Station Grid Location</td>
-                <td><a href="https://www.karhukoti.com/maidenhead-grid-square-locator/?grid=${db['files'][event['file_path']]['params']['station_grid']}">${db['files'][event['file_path']]['params']['station_grid']}</a></td>
-            </tr>
-            <tr>
-                <td>Station Radio</td>
-                <td>${db['files'][event['file_path']]['params']['station_radio']}</td>
             </tr>
         </table>
 
