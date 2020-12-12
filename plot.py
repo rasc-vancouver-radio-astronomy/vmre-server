@@ -87,15 +87,20 @@ def plot(db):
                 "path": plot_path
             }
 
-    plt.figure(figsize=(10,8))
-    plt.ylabel("Power (dB)")
+    plt.figure(figsize=(10,6))
+    plt.ylabel("Number of events")
     plt.xlabel("Date")
-    x = []
-    y = []
+    x = {}
+    for i in range(config.analyze_days):
+        x[(datetime.datetime.now() - datetime.timedelta(days=i)).strftime("%m-%d")] = 0
     for event in summary_events:
-        x.append(datetime.datetime.strptime(event["datetime_str"], "%Y-%m-%d_%H-%M-%S").timestamp())
-        y.append(event["power"])
-    plt.plot(x, y, 'o')
-    plt.savefig(f"site/summary.png")
+        day = datetime.datetime.strptime(event["datetime_str"], "%Y-%m-%d_%H-%M-%S").strftime("%m-%d")
+        if day not in x:
+            x[day] = 1
+        else:
+            x[day] += 1
+    plt.bar(range(len(x)), list(x.values())[::-1], align="center")
+    plt.xticks(range(len(x)), list(x.keys())[::-1])
+    plt.title(f"Detected events over the past {config.analyze_days} days")
+    plt.savefig(f"site/summary.png", bbox_inches='tight')
     plt.close()
-
