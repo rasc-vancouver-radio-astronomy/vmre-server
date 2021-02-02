@@ -29,12 +29,14 @@ def scrub(db):
         today = datetime.now()
         td = today - datetime_event
         if td.days > config.analyze_days:
-            events_to_delete.append(event_id)
+            events_to_delete.append(event)
 
-    for event_id in events_to_delete:
+    print(f"{len(events_to_delete)} events to delete.")
 
-        print(f"Deleting event ID {event_id}.")
-        del db["events"][event_id]
+    for event in events_to_delete:
+
+        print(f"Deleting event ID {event['id']}.")
+        db["events"].remove(event)
 
 def main():
 

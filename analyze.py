@@ -35,7 +35,12 @@ def analyze(db):
                 print(f"Skipping {iq_filename} because file size matches database.")
                 continue
 
-            params = json.load(open(json_filename, "r"))
+            print(f"Reading {json_filename}...")
+            try:
+                params = json.load(open(json_filename, "r"))
+            except:
+                print(f"Skipping {json_filename} due to JSON parse error.")
+                continue
             datetime_started = datetime.datetime.strptime(params["datetime_started"], "%Y-%m-%d_%H-%M-%S.%f")
             today = datetime.datetime.now()
             td = today - datetime_started
@@ -48,6 +53,9 @@ def analyze(db):
                 db["files"][iq_filename] = {"size": 0}
 
             db["files"][iq_filename]["params"] = params
+
+            if "station_id" not in db["files"][iq_filename]["params"]:
+                db["files"][iq_filename]["params"]["station_id"] = 0
 
             # Extract parameters.
             bw = params["bandwidth"]

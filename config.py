@@ -1,10 +1,13 @@
 receivers = [
     {
-        "data_path": "/mnt/str/pri/vmre/data/jansky/",
+        "data_path": "/mnt/str/sec/vmre/data/jansky/",
     },
     {
-        "data_path": "/mnt/str/pri/vmre/data/ken-surrey/",
-    }
+        "data_path": "/mnt/str/sec/vmre/data/ken-surrey/",
+    },
+    {
+        "data_path": "/mnt/str/sec/vmre/data/rasc-macbook/",
+    },
 ]
 
 stations = {
@@ -31,7 +34,7 @@ stations = {
 }
 
 # Analysis
-power_threshold = 25
+power_threshold = 20
 notch_bw = 20
 dt = 5
 n = 4096
