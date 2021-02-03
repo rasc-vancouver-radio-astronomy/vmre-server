@@ -93,7 +93,7 @@ def plot(db):
     x = []
     y = []
     for i in range(config.analyze_days):
-        x.append((datetime.datetime.now() - datetime.timedelta(days=i)).strftime("%m-%d"))
+        x.append((datetime.datetime.now() - datetime.timedelta(days=i+1)).strftime("%m-%d"))
         y.append(0)
     for event in summary_events:
         date_str = datetime.datetime.strptime(event["datetime_str"], "%Y-%m-%d_%H-%M-%S").strftime("%m-%d")
