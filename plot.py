@@ -90,17 +90,20 @@ def plot(db):
     plt.figure(figsize=(10,6))
     plt.ylabel("Number of events")
     plt.xlabel("Date")
-    x = {}
+    x = []
+    y = []
     for i in range(config.analyze_days):
-        x[(datetime.datetime.now() - datetime.timedelta(days=i)).strftime("%m-%d")] = 0
+        x.append((datetime.datetime.now() - datetime.timedelta(days=i)).strftime("%m-%d"))
+        y.append(0)
     for event in summary_events:
-        day = datetime.datetime.strptime(event["datetime_str"], "%Y-%m-%d_%H-%M-%S").strftime("%m-%d")
-        if day not in x:
-            x[day] = 1
-        else:
-            x[day] += 1
-    plt.bar(range(len(x)), list(x.values())[::-1], align="center")
-    plt.xticks(range(len(x)), list(x.keys())[::-1])
+        date_str = datetime.datetime.strptime(event["datetime_str"], "%Y-%m-%d_%H-%M-%S").strftime("%m-%d")
+        if date_str in x:
+            day = x.index(date_str)
+            y[day] += 1
+    x.reverse()
+    y.reverse()
+    plt.bar(range(len(x)), y, align="center")
+    plt.xticks(range(len(x)), x)
     plt.title(f"Detected events over the past {config.analyze_days} days")
     plt.savefig(f"site/summary.png", bbox_inches='tight')
     plt.close()

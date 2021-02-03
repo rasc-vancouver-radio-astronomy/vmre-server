@@ -3,8 +3,7 @@ site
 data/*
 data
 __pycache__
-vmre_db.json
 config.py
 vmre.log
 run.sh
-
+vmre_db.json*
