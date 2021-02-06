@@ -1,12 +1,12 @@
 receivers = [
     {
-        "data_path": "/mnt/str/sec/vmre/data/jansky/",
+        "data_path": "/mnt/str/sec/vmre/data/jansky",
     },
     {
-        "data_path": "/mnt/str/sec/vmre/data/ken-surrey/",
+        "data_path": "/mnt/str/sec/vmre/data/ken-surrey",
     },
     {
-        "data_path": "/mnt/str/sec/vmre/data/rasc-macbook/",
+        "data_path": "/mnt/str/sec/vmre/data/rasc-macbook",
     },
 ]
 
@@ -34,7 +34,7 @@ stations = {
 }
 
 # Analysis
-power_threshold = 20
+power_threshold = 15
 notch_bw = 20
 dt = 5
 n = 4096
@@ -48,4 +48,3 @@ NFFTs = [256, 512, 1024]
 default_fft = 512
 
 analyze_days = 14
-

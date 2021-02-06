@@ -25,13 +25,17 @@ def create_index_page(db):
     for file_path in db["files"]:
         f = db["files"][file_path]
         datetime_started = datetime.datetime.strptime(f["params"]["datetime_started"], "%Y-%m-%d_%H-%M-%S.%f")
+        station_id = f["params"]["station_id"]
         td = today - datetime_started
         if td.days < config.analyze_days:
-            availability[f["params"]["station_id"]][config.analyze_days-td.days-1] = True
+            availability[f["params"]["station_id"]][td.days] = True
+
+    for s in availability:
+        availability[s].reverse()
 
     availability_dates = []
     for i in range(config.analyze_days):
-        availability_dates.append((datetime.datetime.now() - datetime.timedelta(days=i+1)).strftime("%m-%d"))
+        availability_dates.append((datetime.datetime.now() - datetime.timedelta(days=i)).strftime("%m-%d"))
     availability_dates.reverse()
 
     index_template = Template(filename="templates/index.html")
