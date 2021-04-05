@@ -1,3 +1,34 @@
+import csv
+import datetime
+import json
+import os
+from multiprocessing import Pool
+
+import numpy as np
+
+import config
+
+def events(db):
+
+    db["events"] = []
+
+    with Pool(None) as p:
+        rr = p.map(events_file, db["files"].items())
+
+    for r in rr:
+        for a in r:
+            db["events"].append(a)
+            db["events"][-1]["event_id"] = len(db["events"])-1
+
+def events_file(f):
+    file = f[1]
+    iq_filename = f[0]
+
+    power = np.genfromtxt(file["power"], delimiter=",")
+    events = []
+
+    dt = config.dt
+    datetime_started = datetime.datetime.strptime(file["params"]["datetime_started"], "%Y-%m-%d_%H-%M-%S.%f")
 
     # Author: William Wall
 
@@ -48,7 +79,7 @@
 
     # End of William's code.
 
-   spec_width = 30
+    spec_width = 30
     spec_start = 5
 
     # Get rid of events that are within 30 seconds of each other.
@@ -66,11 +97,13 @@
     for i in ind:
         datetime_event = datetime_started + datetime.timedelta(seconds=i*dt)
 
-        db["events"].append({
-            "file_path": iq_filename,
-            "file_index": i,
-            "power": power[i],
+        events.append({
+            "station_id": file["station_id"],
             "datetime_readable": datetime_event.strftime("%Y-%m-%d %H:%M:%S"),
-            "datetime_str": datetime_event.strftime('%Y-%m-%d_%H-%M-%S'),
+            "datetime_str": datetime_event.strftime('%Y-%m-%d_%H-%M-%S.%f'),
             "interference": False,
+            "center_frequency": file["params"]["center_frequency"],
+            "plots": [],
         })
+    
+    return events

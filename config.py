@@ -33,10 +33,10 @@ power_threshold = 5
 dt = 10
 n = 1024
 
-spec_width = 40
-spec_start = 10
+spec_end = 15
+spec_start = -15
 
-NFFTs = [256, 512, 1024]
+NFFTs = [512]
 default_fft = 512
 
 analyze_days = 20

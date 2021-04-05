@@ -83,7 +83,7 @@ def power_file(datafile):
     datetime_started = datafile["datetime_started"]
     size = datafile["size"]
     station_id = datafile["station_id"]
-    csv_filename = f"site/power-station{station_id}-{os.path.split(base_filename)[1]}.csv"
+    csv_filename = f"site/power_station{station_id}_{os.path.split(base_filename)[1]}.csv"
 
     # Extract parameters.
     bw = params["bandwidth"]

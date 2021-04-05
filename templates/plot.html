@@ -11,7 +11,7 @@
             <tr>
                 <td>
 % if prev_event is not None:
-                    <a href="event${prev_event['id']}_${prev_event['datetime_str']}.html">Prev</a><br>
+                    <a href="event${prev_event['event_id']}_${prev_event['datetime_str']}.html">Prev</a><br>
 % else:
                     Prev
 % endif
@@ -21,7 +21,7 @@
                 </td>
                 <td>
 % if next_event is not None:
-                    <a href="event${next_event['id']}_${next_event['datetime_str']}.html">Next</a><br>
+                    <a href="event${next_event['event_id']}_${next_event['datetime_str']}.html">Next</a><br>
 % else:
                     Next
 % endif
@@ -29,44 +29,23 @@
             </tr>
         </table>
 
-        <img id="plot" src="event${event['id']}_${event['datetime_str']}_FFT${config.default_fft}.png"><br>
-
-        FFT:
-        <input id="fft" type="range" min="8" max="10" step="1" oninput="showFft(this.value)" onchange="showFft(this.value)" />
-        <span id="range">${config.default_fft}</span><br>
+% for plot in event["plots"]:
+        <img src="${plot.split('/')[1]}">
+% endfor
 
         <br>
 
         <table>
             <tr>
-                <td>Signal Power</td>
-                <td>${'{0:.1f}'.format(event["power"])} dB</td>
-            </tr>
-            <tr>
                 <td>Center Frequency</td>
-                <td>${'{0:.3f}'.format(db['files'][event["file_path"]]["params"]["center_frequency"]/1E6)} MHz</td>
-            </tr>
-            <tr>
-                <td>Station Operator</td>
-                <td>${db['files'][event['file_path']]['params']['station_owner']}</td>
+                <td>${'{0:.3f}'.format(event["center_frequency"]/1E6)} MHz</td>
             </tr>
             <tr>
                 <td>Station ID</td>
-                <td>${db['files'][event['file_path']]['params']['station_id']}</td>
+                <td>${event['station_id']}</td>
             </tr>
         </table>
 
         <br>
-
-        <script>
-        var fft = Math.pow(2, document.getElementById("fft").value);
-        document.getElementById("range").innerHTML = fft;
-
-        function showFft(newFft) {
-            newFft = Math.pow(2, newFft);
-            document.getElementById("range").innerHTML = newFft;
-            document.getElementById("plot").src = "event${event['id']}_${event['datetime_str']}_FFT" + newFft + ".png";
-        }
-        </script>
     </body>
 </html>
