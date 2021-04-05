@@ -1,12 +1,12 @@
 receivers = [
     {
-        "data_path": "/mnt/str/sec/vmre/data/jansky",
+        "data_path": "/rvra/vmre/data/jansky",
     },
     {
-        "data_path": "/mnt/str/sec/vmre/data/ken-surrey",
+        "data_path": "/rvra/vmre/data/ken-surrey",
     },
     {
-        "data_path": "/mnt/str/sec/vmre/data/rasc-macbook",
+        "data_path": "/rvra/vmre/data/rasc-macbook",
     },
 ]
 
@@ -19,23 +19,20 @@ stations = {
     1: {
         "grid": "CN89og",
         "operator": "Preston Thompson",
-        "description": "Airspy R2 using VMRE antenna",
     },
     2: {
         "grid": "",
         "operator": "Ken Arthurs",
-        "description": "Airspy R2 using VMRE antenna",
     },
     3: {
         "grid": "",
         "operator": "Ken Arthurs",
-        "description": "RTL-SDR using VMRE antenna",
     },
 }
 
 # Analysis
-power_threshold = 15
-notch_bw = 20
+power_threshold = 5
+notch_bw = 0
 dt = 5
 n = 4096
 #dt = 5
@@ -47,4 +44,4 @@ spec_start = 10
 NFFTs = [256, 512, 1024]
 default_fft = 512
 
-analyze_days = 14
+analyze_days = 20

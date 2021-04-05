@@ -95,6 +95,9 @@ def analyze(db):
 
                 power[i] = (max(fft) - np.median(fft))
 
+            if "power_csv" not in db:
+                db["power_csv"] = []
+            db["power_csv"].append(csv_filename)
             with open(csv_filename, "w") as f:
                 for p in power:
                     f.write(f"{p}\n")

@@ -1,4 +1,4 @@
 #!/bin/bash
 
-rsync -av -e 'ssh -p 3778' site/ vmre.ca:vmre/
+rsync -av site/ vmre@vmre.ca:html/
 
