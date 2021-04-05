@@ -12,68 +12,19 @@
 
         <p>Analyzing last ${config.analyze_days} days worth of data.</p>
 
-        <p>Events in database: ${len(db['events'])}</p>
-        <img src="summary.png">
-
-        <p>Station availabilities:</p>
-        <table>
-            <tr>
-                <th>Station ID</th>
-% for day in availability_dates:
-                <th>${day}</th>
-% endfor
-            </tr>
-% for station_id in availability:
-            <tr>
-                <td>${station_id}</td>
-    % for day in availability[station_id]:
-        % if day:
-                <td style="background-color: green"></td>
-        % else:
-                <td style="background-color: red"></td>
-        % endif
-    % endfor
-            </tr>
-% endfor
-        </table>
-
-        <p>Near event log:</p>
-        <table>
-            <tr>
-                <th>Time</th>
-                <th>Power (dB)</th>
-                <th>Frequency (MHz)</th>
-                <th>Station Operator</th>
-                <th>Station ID</th>
-            </tr>
-% for e in near_events:
-            <tr>
-                <td><a href="event${e['id']}_${e['datetime_str']}.html">${e["datetime_readable"]}</a></td>
-                <td>${'{0:.1f}'.format(e["power"])}</td>
-                <td>${'{0:.3f}'.format(db['files'][e["file_path"]]["params"]["center_frequency"]/1E6)}</td>
-                <td>${db["files"][e["file_path"]]["params"]["station_owner"]}</td>
-                <td>${db["files"][e["file_path"]]["params"]["station_id"]}</td>
-            </tr>
-% endfor 
-        </table>
-
         <p>Complete event log:</p>
         <table>
             <tr>
                 <th>Time</th>
-                <th>Power (dB)</th>
                 <th>Frequency (MHz)</th>
-                <th>Station Operator</th>
                 <th>Station ID</th>
             </tr>
 % for e in reversed(sorted(db['events'], key=lambda k: k['datetime_str'])):
     % if not e['interference']:
             <tr>
-                <td><a href="event${e['id']}_${e['datetime_str']}.html">${e["datetime_readable"]}</a></td>
-                <td>${'{0:.1f}'.format(e["power"])}</td>
-                <td>${'{0:.3f}'.format(db['files'][e["file_path"]]["params"]["center_frequency"]/1E6)}</td>
-                <td>${db["files"][e["file_path"]]["params"]["station_owner"]}</td>
-                <td>${db["files"][e["file_path"]]["params"]["station_id"]}</td>
+                <td><a href="event${e['event_id']}_${e['datetime_str']}.html">${e["datetime_readable"]}</a></td>
+                <td>${'{0:.3f}'.format(e["center_frequency"]/1E6)}</td>
+                <td>${e["station_id"]}</td>
             </tr>
     % endif
 % endfor

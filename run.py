@@ -6,8 +6,8 @@ import os
 import sqlite3
 import time
 
-from analyze import analyze
-from fetch import fetch
+from power import power
+from events import events
 from plot import plot
 from pages import pages
 
@@ -18,25 +18,6 @@ def print_box(s):
     print("#" * (len(s) + 4))
     print(f"# {s} #")
     print("#" * (len(s) + 4))
-
-def scrub(db):
-
-    events_to_delete = []
-
-    for event_id, event in enumerate(db["events"]):
-
-        datetime_event = datetime.strptime(event["datetime_str"], "%Y-%m-%d_%H-%M-%S")
-        today = datetime.now()
-        td = today - datetime_event
-        if td.days > config.analyze_days:
-            events_to_delete.append(event)
-
-    print(f"{len(events_to_delete)} events to delete.")
-
-    for event in events_to_delete:
-
-        print(f"Deleting event ID {event['id']}.")
-        db["events"].remove(event)
 
 def main():
 
@@ -59,13 +40,20 @@ def main():
 
     os.makedirs("site", exist_ok=True)
 
-    print(f"Scrubbing database. Time is {time.time() - start_time}.")
-    scrub(db)
+    print(f"Calculating power series. Time is {time.time() - start_time}.")
+    power(db)
     print()
 
-    print(f"Analyzing data. Time is {time.time() - start_time}.")
-    analyze(db)
+    print(f"Finding events. Time is {time.time() - start_time}.")
+    events(db)
     print()
+
+
+    print(f"Writing database. Time is {time.time() - start_time}.")
+    db["last_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    json.dump(db, open("vmre_db.json", "w"), indent=4, sort_keys=True)
+    print()
+
 
     print(f"Plotting data. Time is {time.time() - start_time}.")
     plot(db)
