@@ -6,7 +6,7 @@ import os
 import sqlite3
 import time
 
-from analyze import analyze
+from power import calculate_power
 from fetch import fetch
 from plot import plot
 from pages import pages
@@ -18,25 +18,6 @@ def print_box(s):
     print("#" * (len(s) + 4))
     print(f"# {s} #")
     print("#" * (len(s) + 4))
-
-def scrub(db):
-
-    events_to_delete = []
-
-    for event_id, event in enumerate(db["events"]):
-
-        datetime_event = datetime.strptime(event["datetime_str"], "%Y-%m-%d_%H-%M-%S")
-        today = datetime.now()
-        td = today - datetime_event
-        if td.days > config.analyze_days:
-            events_to_delete.append(event)
-
-    print(f"{len(events_to_delete)} events to delete.")
-
-    for event in events_to_delete:
-
-        print(f"Deleting event ID {event['id']}.")
-        db["events"].remove(event)
 
 def main():
 
@@ -59,12 +40,8 @@ def main():
 
     os.makedirs("site", exist_ok=True)
 
-    print(f"Scrubbing database. Time is {time.time() - start_time}.")
-    scrub(db)
-    print()
-
-    print(f"Analyzing data. Time is {time.time() - start_time}.")
-    analyze(db)
+    print(f"Finding power series. Time is {time.time() - start_time}.")
+    calculate_power(db)
     print()
 
     print(f"Plotting data. Time is {time.time() - start_time}.")

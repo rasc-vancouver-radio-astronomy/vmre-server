@@ -48,7 +48,7 @@ def create_index_page(db):
         t2 = datetime.datetime.strptime(e2['datetime_str'], "%Y-%m-%d_%H-%M-%S")
         t1 = datetime.datetime.strptime(e1['datetime_str'], "%Y-%m-%d_%H-%M-%S")
         dt = t2-t1
-        if dt.days<1 and dt.seconds<(5*60):
+        if dt.days<1 and dt.seconds<(30):
             near_events.append(events_ordered[idx-1])
             near_events.append(events_ordered[idx])
 

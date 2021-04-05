@@ -32,11 +32,8 @@ stations = {
 
 # Analysis
 power_threshold = 5
-notch_bw = 0
-dt = 5
-n = 4096
-#dt = 5
-#n = 1024
+dt = 10
+n = 1024
 
 spec_width = 40
 spec_start = 10
