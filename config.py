@@ -1,32 +1,30 @@
-receivers = [
-    {
-        "data_path": "/rvra/vmre/data/jansky",
-    },
-    {
-        "data_path": "/rvra/vmre/data/ken-surrey",
-    },
-    {
-        "data_path": "/rvra/vmre/data/rasc-macbook",
-    },
-]
-
 stations = {
-    0: {
-        "grid": "",
-        "operator": "Unknown",
-        "description": "",
-    },
     1: {
         "grid": "CN89og",
         "operator": "Preston Thompson",
+        "data_path": "data/station1",
+        "radio": "RTLSDR",
+        "antenna": "VHF turnstile",
+        "location": "Coquitlam",
+        "computer": "Ubuntu 20.04 x86-64"
     },
     2: {
         "grid": "",
         "operator": "Ken Arthurs",
+        "data_path": "data/station2",
+        "radio": "NESDR",
+        "antenna": "VHF turnstile",
+        "location": "Surrey",
+        "computer": "Windows 10 x86-64",
     },
     3: {
         "grid": "",
         "operator": "Ken Arthurs",
+        "data_path": "data/station3",
+        "radio": "NESDR",
+        "antenna": "VHF turnstile",
+        "location": "Surrey",
+        "computer": "Ubuntu 20.04 x86-64 Macbook Pro",
     },
 }
 

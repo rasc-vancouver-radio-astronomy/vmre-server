@@ -7,12 +7,12 @@ import numpy as np
 
 import config
 
-def calculate_power(db):
+def power(db):
 
     datafiles = get_files(db)
 
     with Pool(None) as p:
-        rr = p.map(calculate_power_file, datafiles)
+        rr = p.map(power_file, datafiles)
 
     for r in rr:
         iq_filename = r[0]
@@ -22,13 +22,13 @@ def calculate_power(db):
 def get_files(db):
 
     datafiles = []
-    for receiver in config.receivers:
-        for filename in sorted(os.listdir(receiver["data_path"])):
+    for station_id, station in config.stations.items():
+        for filename in sorted(os.listdir(station["data_path"])):
 
             if os.path.splitext(filename)[1] != ".json":
                 continue
 
-            base_filename = os.path.splitext(f"{receiver['data_path']}/{filename}")[0]
+            base_filename = os.path.splitext(f"{station['data_path']}/{filename}")[0]
             json_filename = base_filename + ".json"
             iq_filename = base_filename + ".dat"
 
@@ -58,9 +58,7 @@ def get_files(db):
                 db["files"][iq_filename] = {"size": 0}
 
             db["files"][iq_filename]["params"] = params
-
-            if "station_id" not in db["files"][iq_filename]["params"]:
-                db["files"][iq_filename]["params"]["station_id"] = 0
+            db["files"][iq_filename]["station_id"] = station_id
 
             datafiles.append({
                 "json": json_filename,
@@ -68,14 +66,15 @@ def get_files(db):
                 "base": base_filename,
                 "params": params,
                 "datetime_started": datetime_started,
-                "size": db["files"][iq_filename]["size"]
+                "size": db["files"][iq_filename]["size"],
+                "station_id": station_id,
             })
 
             db["files"][iq_filename]["size"] = os.path.getsize(iq_filename)
 
     return datafiles
 
-def calculate_power_file(datafile):
+def power_file(datafile):
 
     json_filename = datafile["json"]
     iq_filename = datafile["iq"]
@@ -83,9 +82,8 @@ def calculate_power_file(datafile):
     params = datafile["params"]
     datetime_started = datafile["datetime_started"]
     size = datafile["size"]
-    csv_filename = "site/peaks-" + os.path.split(base_filename)[1] + ".csv"
-
-    peaks = []
+    station_id = datafile["station_id"]
+    csv_filename = f"site/power-station{station_id}-{os.path.split(base_filename)[1]}.csv"
 
     # Extract parameters.
     bw = params["bandwidth"]
@@ -118,7 +116,7 @@ def calculate_power_file(datafile):
 
         power[i] = (max(fft) - np.median(fft))
 
-    with open(csv_filename, "w") as f:
+    with open(csv_filename, "a") as f:
         for p in power:
             f.write(f"{p}\n")
 

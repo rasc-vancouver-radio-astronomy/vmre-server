@@ -6,8 +6,7 @@ import os
 import sqlite3
 import time
 
-from power import calculate_power
-from fetch import fetch
+from power import power
 from plot import plot
 from pages import pages
 
@@ -41,7 +40,7 @@ def main():
     os.makedirs("site", exist_ok=True)
 
     print(f"Finding power series. Time is {time.time() - start_time}.")
-    calculate_power(db)
+    power(db)
     print()
 
     print(f"Plotting data. Time is {time.time() - start_time}.")
