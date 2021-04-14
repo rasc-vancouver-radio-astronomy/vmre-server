@@ -95,12 +95,11 @@ def power_file(datafile):
 
     index_dt = int(dt*bw)
     iq_len = os.path.getsize(iq_filename) // 8
-    start_index = size // 8
 
     power = np.zeros(int(iq_len // index_dt))
     f = open(iq_filename, "rb")
 
-    for i in range(start_index, int(iq_len//index_dt)):
+    for i in range(int(iq_len//index_dt)):
 
         f.seek(i*index_dt*8)
 
@@ -114,9 +113,13 @@ def power_file(datafile):
         trim = n // 16
         fft = fft[trim:len(fft)-trim]
 
+        blank = config.notch_bw/bw*len(fft)
+        for j in range(int(len(fft)/2-blank/2), int(len(fft)/2+blank/2)):
+            fft[j] = -np.Inf
+
         power[i] = (max(fft) - np.median(fft))
 
-    with open(csv_filename, "a") as f:
+    with open(csv_filename, "w") as f:
         for p in power:
             f.write(f"{p}\n")
 

@@ -1,4 +1,4 @@
 #!/bin/bash
 
-rsync -av site/ vmre@vmre.ca:html/
+rsync -av --delete site/ vmre@vmre.ca:html/
 

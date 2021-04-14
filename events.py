@@ -33,7 +33,7 @@ def events_file(f):
     # Author: William Wall
 
     wrsig = 100
-    sn_thr = 8
+    sn_thr = config.power_threshold
 
     rmean = power - power
     rsig = power - power
@@ -79,9 +79,6 @@ def events_file(f):
 
     # End of William's code.
 
-    spec_width = 30
-    spec_start = 5
-
     # Get rid of events that are within 30 seconds of each other.
     i = 1
     while True:
@@ -92,7 +89,7 @@ def events_file(f):
         else:
             i += 1
 
-    print(f"Found {len(ind)} events.")
+    print(f"Found {len(ind)} events in {file['power']}.")
 
     for i in ind:
         datetime_event = datetime_started + datetime.timedelta(seconds=i*dt)

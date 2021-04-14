@@ -2,6 +2,7 @@
 
 from datetime import datetime
 import json
+from multiprocessing import set_start_method
 import os
 import sqlite3
 import time
@@ -21,12 +22,14 @@ def print_box(s):
 
 def main():
 
+    set_start_method("spawn") # Fix multiprocessing library causing hangs
+
     start_time = time.time()
 
     print_box(f"VMRE run started. Time is {datetime.now()}.")
     print()
 
-    if not os.path.exists("vmre_db.json"):
+    if not os.path.exists("vmre_db.json") or True: # Always create database
         print(f"VMRE database not found. Creating database.")
         db = {
             "events": [],

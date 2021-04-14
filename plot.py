@@ -49,8 +49,8 @@ def plot(db):
                 start_t = 0
             end_idx = int(((event_time-start).total_seconds() + config.spec_end) * file["params"]["bandwidth"])
             end_t = config.spec_end
-            if end_idx >= file["size"]/8:
-                end_idx = file["size"]/8
+            if end_idx >= file["size"]//8:
+                end_idx = file["size"]//8
 
             plots.append({
                 "file_path": file_path,
