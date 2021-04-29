@@ -120,7 +120,7 @@ def power_file(datafile):
         power[i] = (max(fft) - np.median(fft))
 
     with open(csv_filename, "w") as f:
-        for p in power:
-            f.write(f"{p}\n")
+        for i, p in enumerate(power):
+            f.write(f"{i*dt},{p}\n")
 
     return (iq_filename, csv_filename)

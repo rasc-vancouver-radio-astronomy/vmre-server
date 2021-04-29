@@ -8,6 +8,7 @@ import numpy as np
 
 import config
 
+
 def events(db):
 
     db["events"] = []
@@ -20,11 +21,12 @@ def events(db):
             db["events"].append(a)
             db["events"][-1]["event_id"] = len(db["events"])-1
 
+
 def events_file(f):
     file = f[1]
     iq_filename = f[0]
 
-    power = np.genfromtxt(file["power"], delimiter=",")
+    power = np.genfromtxt(file["power"], delimiter=",")[:,1]
     events = []
 
     dt = config.dt
