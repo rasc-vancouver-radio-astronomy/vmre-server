@@ -21,6 +21,22 @@ def events(db):
             db["events"].append(a)
             db["events"][-1]["event_id"] = len(db["events"])-1
 
+    # Find duplicate events to delete
+    dates = []
+    delete = []
+    for event in db["events"]:
+        if event["datetime_readable"] not in dates:
+            dates.append(event["datetime_readable"])
+        else:
+            delete.append(event["event_id"])
+    
+    # Delete the duplicate events
+    for event_id in sorted(delete, reverse=True):
+        del db["events"][event_id]
+
+    # Renumber event IDs now that we've deleted some
+    for event_id, event in enumerate(db["events"]):
+        event["event_id"] = event_id
 
 def events_file(f):
     file = f[1]

@@ -128,3 +128,27 @@ def plot_event(p):
         plots.append(plot_path)
 
     return plots
+
+def plot_power(db):
+
+    # WIP
+
+    for day_num in range(config.analyze_days):
+
+        # Ugly...
+        today = datetime.datetime.strptime(datetime.datetime.now().strftime("%Y-%m-%d"), "%Y-%m-%d")
+        tomorrow = today + datetime.timedelta(seconds=24*60*60)
+
+        power = {}
+
+        for filename in db["files"]:
+
+            file = db["files"][filename]
+            params = file["params"]
+
+            datetime_started = datetime.datetime.strptime(params["datetime_started"], "%Y-%m-%d_%H-%M-%S.%f")
+            datetime_finished = datetime_started + datetime.timedelta(seconds=file["size"]//params["bandwidth"]//8)
+
+            # if datetime_started < tomorrow and datetime_finished > today:
+
+                # power[params["station_id"]] = np.zeros(24*60*60)

@@ -30,13 +30,5 @@
 % endfor
         </table>
 
-        <p>Power CSVs:</p>
-
-<%! import os %>
-
-% for file in db["files"]:
-        <a href="${os.path.split(db['files'][file]['power'])[-1]}">Station ${db['files'][file]['station_id']} ${db['files'][file]['datetime_readable']}</a><br>
-% endfor
-
     </body>
 </html>
