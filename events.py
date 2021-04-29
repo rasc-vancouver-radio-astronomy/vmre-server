@@ -103,6 +103,7 @@ def events_file(f):
             "interference": False,
             "center_frequency": file["params"]["center_frequency"],
             "plots": [],
+            "stations_online": [],
         })
     
     return events

@@ -42,6 +42,8 @@ def plot(db):
             if file["params"]["center_frequency"] != event["center_frequency"]:
                 continue
 
+            event["stations_online"].append(file["params"]["station_id"])
+
             start_idx = int(((event_time-start).total_seconds() + config.spec_start) * file["params"]["bandwidth"])
             start_t = config.spec_start
             if start_idx < 0:

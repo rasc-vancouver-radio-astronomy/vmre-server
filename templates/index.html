@@ -17,18 +17,26 @@
             <tr>
                 <th>Time</th>
                 <th>Frequency (MHz)</th>
-                <th>Station ID</th>
+                <th>Stations Online</th>
             </tr>
 % for e in reversed(sorted(db['events'], key=lambda k: k['datetime_str'])):
     % if not e['interference']:
             <tr>
                 <td><a href="event${e['event_id']}_${e['datetime_str']}.html">${e["datetime_readable"]}</a></td>
                 <td>${'{0:.3f}'.format(e["center_frequency"]/1E6)}</td>
-                <td>${e["station_id"]}</td>
+                <td>${" ".join([str(i) for i in e["stations_online"]])}</td>
             </tr>
     % endif
 % endfor
         </table>
+
+        <p>Power CSVs:</p>
+
+<%! import os %>
+
+% for file in db["files"]:
+        <a href="${os.path.split(db['files'][file]['power'])[-1]}">Station ${db['files'][file]['station_id']} ${db['files'][file]['datetime_readable']}</a><br>
+% endfor
 
     </body>
 </html>

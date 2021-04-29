@@ -59,6 +59,7 @@ def get_files(db):
 
             db["files"][iq_filename]["params"] = params
             db["files"][iq_filename]["station_id"] = station_id
+            db["files"][iq_filename]["datetime_readable"] = datetime_started.strftime("%Y-%m-%d %H:%M:%S")
 
             datafiles.append({
                 "json": json_filename,
