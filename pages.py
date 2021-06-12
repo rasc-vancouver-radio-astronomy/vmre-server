@@ -10,6 +10,7 @@ def pages(db):
 
     os.makedirs("site", exist_ok=True)
     copyfile("templates/style.css", "site/style.css")
+    copyfile("templates/rasc-new-banner.png", "site/rasc-new-banner.png")
     create_index_page(db)
     create_plot_pages(db)
 
