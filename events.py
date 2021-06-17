@@ -25,12 +25,20 @@ def events(db):
     dates = {}
     delete = []
     for event in db["events"]:
-        if event["datetime_readable"] not in dates:
-            dates[event["datetime_readable"]] = {"event_id": event["event_id"], "stations": [event["station_id"]]}
+        dupe = False
+        for d in dates:
+            if abs(d - event["datetime_int"]) < 30:
+                dupe = True
+                break
+
+        if not dupe:
+            dates[event["datetime_int"]] = {"event_id": event["event_id"], "stations": [event["station_id"]]}
         else:
-            dates[event["datetime_readable"]]["stations"].append(event["station_id"])
+            if event["station_id"] not in dates[d]["stations"]:
+                dates[d]["stations"].append(event["station_id"])
             delete.append(event["event_id"])
     
+    print(dates)
     for event in dates.values():
         db["events"][event["event_id"]]["stations"] = event["stations"]
 
@@ -102,14 +110,14 @@ def events_file(f):
     # End of William's code.
 
     # Get rid of events that are within 30 seconds of each other.
-    i = 1
-    while True:
-        if i >= len(ind):
-            break
-        if (ind[i] - ind[i-1])*dt < 30:
-            del ind[i]
-        else:
-            i += 1
+    # i = 1
+    # while True:
+    #     if i >= len(ind):
+    #         break
+    #     if (ind[i] - ind[i-1])*dt < 30:
+    #         del ind[i]
+    #     else:
+    #         i += 1
 
     print(f"Found {len(ind)} events in {file['power']}.")
 
@@ -120,6 +128,7 @@ def events_file(f):
             "station_id": file["station_id"],
             "datetime_readable": datetime_event.strftime("%Y-%m-%d %H:%M:%S"),
             "datetime_str": datetime_event.strftime('%Y-%m-%d_%H-%M-%S.%f'),
+            "datetime_int": int(datetime_event.strftime('%Y%m%d%H%M%S')),
             "interference": False,
             "center_frequency": file["params"]["center_frequency"],
             "plots": [],

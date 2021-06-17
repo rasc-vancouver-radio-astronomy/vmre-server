@@ -41,8 +41,8 @@
                 <td>${'{0:.3f}'.format(event["center_frequency"]/1E6)} MHz</td>
             </tr>
             <tr>
-                <td>Station ID</td>
-                <td>${event['station_id']}</td>
+                <td>Station IDs</td>
+                <td>${" ".join(str(id) for id in event["stations"])}</td>
             </tr>
         </table>
 
