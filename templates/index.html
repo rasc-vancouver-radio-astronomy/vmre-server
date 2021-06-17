@@ -21,14 +21,18 @@
             <tr>
                 <th>Time</th>
                 <th>Frequency (MHz)</th>
-                <th>Stations Online</th>
+                <th>Detections</th>
+                <th colspan="3">Stations Online</th>
             </tr>
 % for e in reversed(sorted(db['events'], key=lambda k: k['datetime_str'])):
     % if not e['interference']:
             <tr>
                 <td><a href="event${e['event_id']}_${e['datetime_str']}.html">${e["datetime_readable"]}</a></td>
                 <td>${'{0:.3f}'.format(e["center_frequency"]/1E6)}</td>
-                <td>${" ".join([str(i) for i in e["stations_online"]])}</td>
+                <td style="background: ${'magenta' if len(e['stations']) > 1 else 'black'};">${len(e["stations"])}</td>
+        % for station_id in (1,2,3):
+                <td style="background: ${'green' if station_id in e['stations_online'] else 'red'}; text-align: center;">${station_id}</td>
+        %endfor
             </tr>
     % endif
 % endfor

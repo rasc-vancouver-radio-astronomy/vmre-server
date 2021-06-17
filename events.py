@@ -22,14 +22,18 @@ def events(db):
             db["events"][-1]["event_id"] = len(db["events"])-1
 
     # Find duplicate events to delete
-    dates = []
+    dates = {}
     delete = []
     for event in db["events"]:
         if event["datetime_readable"] not in dates:
-            dates.append(event["datetime_readable"])
+            dates[event["datetime_readable"]] = {"event_id": event["event_id"], "stations": [event["station_id"]]}
         else:
+            dates[event["datetime_readable"]]["stations"].append(event["station_id"])
             delete.append(event["event_id"])
     
+    for event in dates.values():
+        db["events"][event["event_id"]]["stations"] = event["stations"]
+
     # Delete the duplicate events
     for event_id in sorted(delete, reverse=True):
         del db["events"][event_id]
