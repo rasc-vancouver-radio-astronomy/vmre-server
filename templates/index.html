@@ -10,13 +10,31 @@
 
         <a href="https://rasc-vancouver.com/"><img src="rasc-new-banner.png"/></a>
 
-        <p>VMRE is funded by and run by members of <a href="https://rasc-vancouver.com/">RASC Vancouver</a>.</p>
+        <p>VMRE is run by members of <a href="https://rasc-vancouver.com/">RASC Vancouver</a>.</p>
 
         <p>Last updated ${db['last_updated']}</p>
 
         <p>Analyzing last ${config.analyze_days} days worth of data.</p>
 
-        <p>Events:</p>
+        <h1>Confirmed Events</h1>
+        <table>
+            <tr>
+                <th>Time</th>
+                <th>Frequency (MHz)</th>
+                <th>Detections</th>
+            </tr>
+% for e in reversed(sorted(db['events'], key=lambda k: k['datetime_str'])):
+    % if not e['interference'] and len(e["stations"]) > 1:
+            <tr>
+                <td><a href="event${e['event_id']}_${e['datetime_str']}.html">${e["datetime_readable"]}</a></td>
+                <td>${'{0:.3f}'.format(e["center_frequency"]/1E6)}</td>
+                <td>${len(e["stations"])}</td>
+            </tr>
+    % endif
+% endfor
+        </table>
+
+        <h1>All Events</h1>
         <table>
             <tr>
                 <th>Time</th>

@@ -38,7 +38,6 @@ def events(db):
                 dates[d]["stations"].append(event["station_id"])
             delete.append(event["event_id"])
     
-    print(dates)
     for event in dates.values():
         db["events"][event["event_id"]]["stations"] = event["stations"]
 

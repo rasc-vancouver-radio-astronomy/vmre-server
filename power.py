@@ -31,13 +31,14 @@ def get_files(db):
             base_filename = os.path.splitext(f"{station['data_path']}/{filename}")[0]
             json_filename = base_filename + ".json"
             iq_filename = base_filename + ".dat"
+            csv_filename = f"csv/power_station{station_id}_{os.path.split(base_filename)[1]}.csv"
 
             if not os.path.exists(iq_filename):
                 print(f"{iq_filename} is missing!")
                 continue
 
-            if iq_filename in db["files"] and os.path.getsize(iq_filename) == db["files"][iq_filename]["size"]:
-                print(f"Skipping {iq_filename} because file size matches database.")
+            if os.path.exists(csv_filename) and os.path.getmtime(iq_filename) < os.path.getmtime(csv_filename):
+                print(f"Already generated CSV for {iq_filename}")
                 continue
 
             print(f"Reading {json_filename}...")
@@ -84,7 +85,7 @@ def power_file(datafile):
     datetime_started = datafile["datetime_started"]
     size = datafile["size"]
     station_id = datafile["station_id"]
-    csv_filename = f"site/power_station{station_id}_{os.path.split(base_filename)[1]}.csv"
+    csv_filename = f"csv/power_station{station_id}_{os.path.split(base_filename)[1]}.csv"
 
     # Extract parameters.
     bw = params["bandwidth"]

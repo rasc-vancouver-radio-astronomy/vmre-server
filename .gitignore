@@ -2,6 +2,8 @@ site/*
 site
 data/*
 data
+csv/*
+csv
 __pycache__
 config.py
 vmre.log
