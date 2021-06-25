@@ -31,36 +31,30 @@ def get_files(db):
             base_filename = os.path.splitext(f"{station['data_path']}/{filename}")[0]
             json_filename = base_filename + ".json"
             iq_filename = base_filename + ".dat"
-            csv_filename = f"csv/power_station{station_id}_{os.path.split(base_filename)[1]}.csv"
 
             if not os.path.exists(iq_filename):
                 print(f"{iq_filename} is missing!")
                 continue
 
-            if os.path.exists(csv_filename) and os.path.getmtime(iq_filename) < os.path.getmtime(csv_filename):
-                print(f"Already generated CSV for {iq_filename}")
-                continue
-
-            print(f"Reading {json_filename}...")
+            #print(f"Reading {json_filename}...")
             try:
                 params = json.load(open(json_filename, "r"))
             except:
-                print(f"Skipping {json_filename} due to JSON parse error.")
+                print(f"{json_filename} has JSON parse error!")
                 continue
-            datetime_started = datetime.datetime.strptime(params["datetime_started"], "%Y-%m-%d_%H-%M-%S.%f")
+            datetime_started = datetime.datetime.strptime(params["datetime_started"], config.time_format_data)
             today = datetime.datetime.now()
             td = today - datetime_started
             if td.days > config.analyze_days:
-                print(f"Skipping {iq_filename} because it's older than {config.analyze_days} days.")
+                #print(f"Skipping {iq_filename} because it's older than {config.analyze_days} days.")
                 continue
             
             if iq_filename not in db["files"]:
-                print(f"Creating new DB entry for {iq_filename}.")
                 db["files"][iq_filename] = {"size": 0}
 
             db["files"][iq_filename]["params"] = params
             db["files"][iq_filename]["station_id"] = station_id
-            db["files"][iq_filename]["datetime_readable"] = datetime_started.strftime("%Y-%m-%d %H:%M:%S")
+            db["files"][iq_filename]["datetime_readable"] = datetime_started.strftime(config.time_format_readable)
 
             datafiles.append({
                 "json": json_filename,
@@ -78,14 +72,14 @@ def get_files(db):
 
 def power_file(datafile):
 
-    json_filename = datafile["json"]
     iq_filename = datafile["iq"]
     base_filename = datafile["base"]
     params = datafile["params"]
-    datetime_started = datafile["datetime_started"]
-    size = datafile["size"]
     station_id = datafile["station_id"]
-    csv_filename = f"csv/power_station{station_id}_{os.path.split(base_filename)[1]}.csv"
+    csv_filename = f"power/power_station{station_id}_{os.path.split(base_filename)[1]}.csv"
+
+    if os.path.exists(csv_filename) and os.path.getmtime(iq_filename) < os.path.getmtime(csv_filename):
+        return (iq_filename, csv_filename)
 
     # Extract parameters.
     bw = params["bandwidth"]

@@ -8,16 +8,13 @@ import config
 
 def pages(db):
 
-    os.makedirs("site", exist_ok=True)
-    copyfile("templates/style.css", "site/style.css")
-    copyfile("templates/rasc-new-banner.png", "site/rasc-new-banner.png")
     create_index_page(db)
     create_plot_pages(db)
 
 def create_index_page(db):
 
     index_template = Template(filename="templates/index.html")
-    html_index = open("site/index.html", "w")
+    html_index = open("html/index.html", "w")
     html_index.write(index_template.render(db=db, config=config))
 
 def create_plot_pages(db):
@@ -29,9 +26,6 @@ def create_plot_pages(db):
     events_to_plot = []
 
     for event in sorted(db["events"], key=lambda item: item["datetime_str"]):
-
-        if event["interference"]:
-            continue
 
         events_to_plot.append(event)
 
@@ -49,7 +43,7 @@ def create_plot_pages(db):
         else:
             next_event = None
 
-        html_plot = open(f"site/event{event['event_id']}_{event['datetime_str']}.html", "w")
+        html_plot = open(f"html/{event['datetime_str']}_{event['center_frequency']}.html", "w")
         html_plot.write(plot_template.render(
             db=db,
             event=event,

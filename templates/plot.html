@@ -11,7 +11,7 @@
             <tr>
                 <td>
 % if prev_event is not None:
-                    <a href="event${prev_event['event_id']}_${prev_event['datetime_str']}.html">Prev</a><br>
+                    <a href="${prev_event['datetime_str']}_${prev_event['center_frequency']}.html">Prev</a><br>
 % else:
                     Prev
 % endif
@@ -21,7 +21,7 @@
                 </td>
                 <td>
 % if next_event is not None:
-                    <a href="event${next_event['event_id']}_${next_event['datetime_str']}.html">Next</a><br>
+                    <a href="${next_event['datetime_str']}_${next_event['center_frequency']}.html">Next</a><br>
 % else:
                     Next
 % endif

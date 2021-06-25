@@ -1,4 +1,3 @@
-import csv
 import datetime
 import json
 import os
@@ -11,47 +10,48 @@ import config
 
 def events(db):
 
+    e = []
     db["events"] = []
 
     with Pool(None) as p:
         rr = p.map(events_file, db["files"].items())
 
     for r in rr:
-        for a in r:
-            db["events"].append(a)
-            db["events"][-1]["event_id"] = len(db["events"])-1
+        csv = open(r, "r")
+        for line in csv.readlines():
+            fields = line.strip().split(",")
+            e.append({
+                "stations": [fields[1]],
+                "datetime_str": fields[0],
+                "center_frequency": float(fields[2]),
+                "datetime_readable": datetime.datetime.strftime(datetime.datetime.strptime(fields[0], config.time_format), config.time_format_readable),
+            })
 
-    # Find duplicate events to delete
+    # Ignore any events too close to each other
     dates = {}
-    delete = []
-    for event in db["events"]:
+    for event in e:
         dupe = False
         for d in dates:
-            if abs(d - event["datetime_int"]) < 30:
+            if abs(d - int(event["datetime_str"])) < (config.spec_end-config.spec_start)*1E6:
                 dupe = True
                 break
 
         if not dupe:
-            dates[event["datetime_int"]] = {"event_id": event["event_id"], "stations": [event["station_id"]]}
+            db["events"].append(event.copy())
+            dates[int(event["datetime_str"])] = len(db["events"])-1
         else:
-            if event["station_id"] not in dates[d]["stations"]:
-                dates[d]["stations"].append(event["station_id"])
-            delete.append(event["event_id"])
+            for s_id in event["stations"]:
+                if s_id not in db["events"][dates[d]]["stations"]:
+                    db["events"][dates[d]]["stations"].append(s_id)
     
-    for event in dates.values():
-        db["events"][event["event_id"]]["stations"] = event["stations"]
-
-    # Delete the duplicate events
-    for event_id in sorted(delete, reverse=True):
-        del db["events"][event_id]
-
-    # Renumber event IDs now that we've deleted some
-    for event_id, event in enumerate(db["events"]):
-        event["event_id"] = event_id
-
 def events_file(f):
     file = f[1]
     iq_filename = f[0]
+    base_filename = os.path.splitext(iq_filename)[0]
+    csv_filename = f"events/events_station{file['station_id']}_{os.path.split(base_filename)[1]}.csv"
+
+    if os.path.exists(csv_filename) and os.path.getmtime(iq_filename) < os.path.getmtime(csv_filename):
+        return csv_filename
 
     power = np.genfromtxt(file["power"], delimiter=",")[:,1]
     events = []
@@ -108,30 +108,12 @@ def events_file(f):
 
     # End of William's code.
 
-    # Get rid of events that are within 30 seconds of each other.
-    # i = 1
-    # while True:
-    #     if i >= len(ind):
-    #         break
-    #     if (ind[i] - ind[i-1])*dt < 30:
-    #         del ind[i]
-    #     else:
-    #         i += 1
-
     print(f"Found {len(ind)} events in {file['power']}.")
+
+    f = open(csv_filename, "w")
 
     for i in ind:
         datetime_event = datetime_started + datetime.timedelta(seconds=i*dt)
-
-        events.append({
-            "station_id": file["station_id"],
-            "datetime_readable": datetime_event.strftime("%Y-%m-%d %H:%M:%S"),
-            "datetime_str": datetime_event.strftime('%Y-%m-%d_%H-%M-%S.%f'),
-            "datetime_int": int(datetime_event.strftime('%Y%m%d%H%M%S')),
-            "interference": False,
-            "center_frequency": file["params"]["center_frequency"],
-            "plots": [],
-            "stations_online": [],
-        })
+        f.write(f"{datetime_event.strftime(config.time_format)},{file['station_id']},{file['params']['center_frequency']}\n")
     
-    return events
+    return csv_filename

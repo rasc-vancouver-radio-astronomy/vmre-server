@@ -29,23 +29,20 @@ def main():
     print_box(f"VMRE run started. Time is {datetime.now()}.")
     print()
 
-    if not os.path.exists("vmre_db.json") or True: # Always create database
-        print(f"VMRE database not found. Creating database.")
-        db = {
-            "events": [],
-            "files": {}
-        }
-        json.dump(db, open("vmre_db.json", "w"))
-    else:
-        print(f"VMRE database found. Loading database.")
-        db = json.load(open("vmre_db.json", "r"))
-    print()
+    db = {
+        "events": [],
+        "files": {}
+    }
 
-    os.makedirs("site", exist_ok=True)
+    os.makedirs("html", exist_ok=True)
+    os.makedirs("events", exist_ok=True)
+    os.makedirs("power", exist_ok=True)
+    os.makedirs("plots", exist_ok=True)
 
     print(f"Calculating power series. Time is {time.time() - start_time}.")
     power(db)
     print()
+
 
     print(f"Finding events. Time is {time.time() - start_time}.")
     events(db)
@@ -53,7 +50,6 @@ def main():
 
 
     print(f"Writing database. Time is {time.time() - start_time}.")
-    db["last_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     json.dump(db, open("vmre_db.json", "w"), indent=4, sort_keys=True)
     print()
 

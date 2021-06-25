@@ -20,19 +20,12 @@ def plot(db):
 
     for event_id, event in enumerate(db["events"]):
         
-        if event["interference"]:
-            continue
-
-        if "recreate_plots" not in sys.argv:
-            if "plots" in event and event["plots"]:
-                continue
-
-        event_time = datetime.datetime.strptime(event["datetime_str"], "%Y-%m-%d_%H-%M-%S.%f")
+        event_time = datetime.datetime.strptime(event["datetime_str"], config.time_format)
 
         for file_path, file in db["files"].items():
 
             # Check if station has any data for this event
-            start = datetime.datetime.strptime(file["params"]["datetime_started"], "%Y-%m-%d_%H-%M-%S.%f")
+            start = datetime.datetime.strptime(file["params"]["datetime_started"], config.time_format_data)
             file_duration = file["size"] / file["params"]["bandwidth"] / 8
             end = start + datetime.timedelta(seconds=file_duration)
             if event_time < start or event_time > end:
@@ -42,7 +35,12 @@ def plot(db):
             if file["params"]["center_frequency"] != event["center_frequency"]:
                 continue
 
+            if "stations_online" not in event:
+                event["stations_online"] = []
             event["stations_online"].append(file["params"]["station_id"])
+
+            if "plots" not in event:
+                event["plots"] = []
 
             start_idx = int(((event_time-start).total_seconds() + config.spec_start) * file["params"]["bandwidth"])
             start_t = config.spec_start
@@ -83,8 +81,6 @@ def plot_event(p):
     
     plt.style.use("dark_background")
 
-    print(f"Plotting event ID {event_id} ({file_path}:{start_idx}:{end_idx}).")
-
     plots = {}
 
     params = file["params"]
@@ -102,12 +98,20 @@ def plot_event(p):
 
     for NFFT in config.NFFTs:
 
+        plot_path = f"plots/{event['datetime_str']}_{event['center_frequency']/1E6:.3f}MHz_station{file['station_id']}_FFT{NFFT}.png"
+        plots.append(plot_path)
+
+        if os.path.exists(plot_path) and os.path.getmtime(file_path) < os.path.getmtime(plot_path):
+            continue
+
+        print(f"Plotting event {event_id} NFFT={NFFT} ({file_path}:{start_idx}:{end_idx}).")
+
         plt.figure(figsize=(7*len(iq_slice)/bw/(config.spec_end-config.spec_start),6))
         Pxx, freqs, bins, im = plt.specgram(iq_slice, NFFT=NFFT, Fs=bw, noverlap=NFFT/2, cmap=cc.cm.bmw, xextent=(start_t, start_t+len(iq_slice)/bw))
 
         plt.ylabel("Doppler shift (Hz)")
         plt.xlabel("Time (sec)")
-        plt.title(f"VMRE event {event_id} station {file['station_id']} {event['center_frequency']/1E6:.3f} MHz {event['datetime_readable']}")
+        plt.title(f"VMRE event (station {file['station_id']} {event['center_frequency']/1E6:.3f} MHz {event['datetime_readable']})")
 
         bottom, top = plt.ylim()
         plt.ylim((bottom+params["transition_width"], top-params["transition_width"]))
@@ -119,13 +123,9 @@ def plot_event(p):
         vmax = 10 * np.log10(np.max(Pxx))
         im.set_clim(vmin=vmin, vmax=vmax)
 
-        plot_path = f"site/event{event_id}_{event['datetime_str']}_{event['center_frequency']/1E6:.3f}MHz_station{file['station_id']}_FFT{NFFT}.png"
-
         #plt.colorbar(im).set_label("Power (dB)")
         plt.savefig(plot_path, bbox_inches="tight")
         plt.close()
-
-        plots.append(plot_path)
 
     return plots
 

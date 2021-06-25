@@ -1,9 +1,13 @@
-site/*
-site
+html/*
+html
 data/*
 data
-csv/*
-csv
+power/*
+power
+events/*
+events
+site/*
+site
 __pycache__
 config.py
 vmre.log

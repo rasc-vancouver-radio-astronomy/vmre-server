@@ -14,9 +14,9 @@
 
         <p>Last updated ${db['last_updated']}</p>
 
-        <p>Analyzing last ${config.analyze_days} days worth of data.</p>
+        <p>Showing last ${config.analyze_days} days worth of data.</p>
 
-        <h1>Confirmed Events</h1>
+        <h1>Confirmed Events (${len([i for i in db["events"] if len(i["stations"]) > 1])})</h1>
         <table>
             <tr>
                 <th>Time</th>
@@ -24,9 +24,9 @@
                 <th>Detections</th>
             </tr>
 % for e in reversed(sorted(db['events'], key=lambda k: k['datetime_str'])):
-    % if not e['interference'] and len(e["stations"]) > 1:
+    % if len(e["stations"]) > 1:
             <tr>
-                <td><a href="event${e['event_id']}_${e['datetime_str']}.html">${e["datetime_readable"]}</a></td>
+                <td><a href="${e['datetime_str']}_${e['center_frequency']}.html">${e["datetime_readable"]}</a></td>
                 <td>${'{0:.3f}'.format(e["center_frequency"]/1E6)}</td>
                 <td>${len(e["stations"])}</td>
             </tr>
@@ -34,7 +34,7 @@
 % endfor
         </table>
 
-        <h1>All Events</h1>
+        <h1>All Events (${len(db['events'])})</h1>
         <table>
             <tr>
                 <th>Time</th>
@@ -43,16 +43,14 @@
                 <th colspan="3">Stations Online</th>
             </tr>
 % for e in reversed(sorted(db['events'], key=lambda k: k['datetime_str'])):
-    % if not e['interference']:
             <tr>
-                <td><a href="event${e['event_id']}_${e['datetime_str']}.html">${e["datetime_readable"]}</a></td>
+                <td><a href="${e['datetime_str']}_${e['center_frequency']}.html">${e["datetime_readable"]}</a></td>
                 <td>${'{0:.3f}'.format(e["center_frequency"]/1E6)}</td>
                 <td style="background: ${'magenta' if len(e['stations']) > 1 else 'black'};">${len(e["stations"])}</td>
         % for station_id in (1,2,3):
                 <td style="background: ${'green' if station_id in e['stations_online'] else 'red'}; text-align: center;">${station_id}</td>
         %endfor
             </tr>
-    % endif
 % endfor
         </table>
 
