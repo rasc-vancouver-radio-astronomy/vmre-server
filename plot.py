@@ -68,6 +68,35 @@ def plot(db):
     for i, p in enumerate(plots):
         db["events"][plots[i]["event_id"]]["plots"] += new_plots[i]
 
+    # Generate 'daily detections' chart. Create y-axis first
+    events_per_day = [0] * (config.analyze_days)
+    for e in db['events']:
+        if len(e["stations"]) > 1:
+            today = datetime.datetime.strptime(datetime.datetime.now().strftime("%Y%m%d"), "%Y%m%d")
+            event_time = datetime.datetime.strptime(datetime.datetime.strptime(e["datetime_str"], config.time_format).strftime("%Y%m%d"), "%Y%m%d")
+            day_delta = (today - event_time).days
+            if day_delta < config.analyze_days:
+                events_per_day[day_delta] += 1
+    events_per_day.reverse()
+
+    # Create x-axis for 'daily detections' chart
+    x = []
+    for i in range(config.analyze_days):
+        x.append( (datetime.datetime.today() - datetime.timedelta(i)).strftime("%m-%d") )
+    x.reverse()
+
+    plt.style.use('dark_background')
+    fig, ax = plt.subplots()
+    plt.bar(x, events_per_day)
+    # plt.xticks(rotation=90)
+    plt.title('VMRE Daily Detections Chart')
+    plt.xlabel('Date (MM-DD)')
+    plt.ylabel('Number of Confirmed Events')
+    fig.autofmt_xdate()
+    plt.tight_layout()
+    plt.savefig("plots/daily.png")
+    plt.close()
+
 
 def plot_event(p):
 

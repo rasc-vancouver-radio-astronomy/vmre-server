@@ -8,6 +8,8 @@ events/*
 events
 site/*
 site
+plots/*
+plots
 __pycache__
 config.py
 vmre.log

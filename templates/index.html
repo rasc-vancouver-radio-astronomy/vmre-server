@@ -16,6 +16,8 @@
 
         <p>Showing last ${config.analyze_days} days worth of data.</p>
 
+        <img src="daily.png">
+
         <h1>Confirmed Events (${len([i for i in db["events"] if len(i["stations"]) > 1])})</h1>
         <table>
             <tr>
@@ -28,7 +30,7 @@
             <tr>
                 <td><a href="${e['datetime_str']}_${e['center_frequency']}.html">${e["datetime_readable"]}</a></td>
                 <td>${'{0:.3f}'.format(e["center_frequency"]/1E6)}</td>
-                <td>${len(e["stations"])}</td>
+                <td style="background: ${'magenta' if len(e['stations']) > 2 else 'black'};">${len(e["stations"])}</td>
             </tr>
     % endif
 % endfor
