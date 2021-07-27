@@ -93,6 +93,7 @@ def plot(db):
     plt.xlabel('Date (MM-DD)')
     plt.ylabel('Number of Confirmed Events')
     fig.autofmt_xdate()
+    plt.xticks(fontsize=9, rotation=90, ha='center')
     plt.tight_layout()
     plt.savefig("plots/daily.png")
     plt.close()
