@@ -13,9 +13,26 @@ def pages(db):
 
 def create_index_page(db):
 
+    stations_last_seen = {}
+
+    for station_id, station in config.stations.items():
+        stations_last_seen[station_id] = None
+
+    for datafile in db["files"].values():
+        station_id = datafile["params"]["station_id"]
+        datafile_start_time = datetime.datetime.strptime(datafile["params"]["datetime_started"], config.time_format_data)
+        datafile_end_time = datafile_start_time + datetime.timedelta(seconds=datafile["size"]/8/datafile["params"]["bandwidth"])
+        if stations_last_seen[station_id] is None:
+            stations_last_seen[station_id] = datafile_end_time
+        elif stations_last_seen[station_id] < datafile_end_time:
+            stations_last_seen[station_id] = datafile_end_time
+
+    for station_id in stations_last_seen:
+        stations_last_seen[station_id] = datetime.datetime.strftime(stations_last_seen[station_id], config.time_format_readable)
+
     index_template = Template(filename="templates/index.html")
     html_index = open("html/index.html", "w")
-    html_index.write(index_template.render(db=db, config=config))
+    html_index.write(index_template.render(db=db, config=config, stations_last_seen=stations_last_seen))
 
 def create_plot_pages(db):
 

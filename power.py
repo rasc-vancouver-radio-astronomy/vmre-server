@@ -36,6 +36,14 @@ def get_files(db):
                 print(f"{iq_filename} is missing!")
                 continue
 
+            if os.path.getsize(iq_filename) == 0:
+                print(f"{iq_filename} has size 0!")
+                continue
+
+            if os.path.getsize(iq_filename) < 400000:
+                print(f"{iq_filename} is too small! size {os.path.getsize(iq_filename)}")
+                continue
+
             #print(f"Reading {json_filename}...")
             try:
                 params = json.load(open(json_filename, "r"))

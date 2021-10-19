@@ -16,6 +16,19 @@
 
         <p>Showing last ${config.analyze_days} days worth of data.</p>
 
+        <table>
+            <tr>
+                <th>Station ID</th>
+                <th>Last signal timestamp</th>
+            </tr>
+% for station_id in stations_last_seen:
+            <tr>
+                <td>${str(station_id)}</td>
+                <td>${stations_last_seen[station_id]}</td>
+            </tr>
+% endfor
+        </table>
+
         <img src="daily.png">
 
         <h1>Confirmed Events (${len([i for i in db["events"] if len(i["stations"]) > 1])})</h1>

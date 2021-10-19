@@ -87,9 +87,11 @@ def plot(db):
 
     plt.style.use('dark_background')
     fig, ax = plt.subplots()
+    fig.set_figheight(5)
+    fig.set_figwidth(15)
     plt.bar(x, events_per_day)
     # plt.xticks(rotation=90)
-    plt.title('VMRE Daily Detections Chart')
+    plt.title('VMRE Daily Confirmed Detections Chart')
     plt.xlabel('Date (MM-DD)')
     plt.ylabel('Number of Confirmed Events')
     fig.autofmt_xdate()
