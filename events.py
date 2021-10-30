@@ -61,12 +61,12 @@ def events_file(f):
 
     # Author: William Wall
 
-    wrsig = 100
+    wrsig = config.wrsig
     sn_thr = config.power_threshold
 
-    rmean = power - power
-    rsig = power - power
-    rmed = power - power
+    rmean = np.zeros(len(power))
+    rsig = np.zeros(len(power))
+    rmed = np.zeros(len(power))
 
     for ii in range(len(power)):
         bi = ii-wrsig
@@ -85,7 +85,7 @@ def events_file(f):
     rdat[loc_thr] = rmed[loc_thr]
     num_pk = len(np.where(loc_thr)[0])
     num_pks = 1*num_pk
-
+    
     counter = 0
     while num_pks != 0:
         counter = counter + 1
