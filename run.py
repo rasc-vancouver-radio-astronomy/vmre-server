@@ -7,8 +7,7 @@ import os
 import sqlite3
 import time
 
-from power import power
-from events import events
+from detect import detect
 from plot import plot
 from pages import pages
 
@@ -31,7 +30,7 @@ def main():
 
     db = {
         "events": [],
-        "files": {}
+        "files": []
     }
 
     os.makedirs("html", exist_ok=True)
@@ -40,19 +39,12 @@ def main():
     os.makedirs("plots", exist_ok=True)
 
     print(f"Calculating power series. Time is {time.time() - start_time}.")
-    power(db)
+    detect(db)
     print()
-
-
-    print(f"Finding events. Time is {time.time() - start_time}.")
-    events(db)
-    print()
-
 
     print(f"Writing database. Time is {time.time() - start_time}.")
-    json.dump(db, open("vmre_db.json", "w"), indent=4, sort_keys=True)
+    open("vmre_db.txt", "w").write(str(db))
     print()
-
 
     print(f"Plotting data. Time is {time.time() - start_time}.")
     plot(db)
@@ -60,7 +52,7 @@ def main():
 
     print(f"Writing database. Time is {time.time() - start_time}.")
     db["last_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    json.dump(db, open("vmre_db.json", "w"), indent=4, sort_keys=True)
+    open("vmre_db.txt", "w").write(str(db))
     print()
 
     print(f"Generating pages. Time is {time.time() - start_time}.")

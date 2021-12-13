@@ -11,7 +11,7 @@
             <tr>
                 <td>
 % if prev_event is not None:
-                    <a href="${prev_event['datetime_str']}_${prev_event['center_frequency']}.html">Prev</a><br>
+                    <a href="${prev_event['datetime_str']}.html">Prev</a><br>
 % else:
                     Prev
 % endif
@@ -21,7 +21,7 @@
                 </td>
                 <td>
 % if next_event is not None:
-                    <a href="${next_event['datetime_str']}_${next_event['center_frequency']}.html">Next</a><br>
+                    <a href="${next_event['datetime_str']}.html">Next</a><br>
 % else:
                     Next
 % endif
@@ -37,15 +37,10 @@
 
         <table>
             <tr>
-                <td>Center Frequency</td>
-                <td>${'{0:.3f}'.format(event["center_frequency"]/1E6)} MHz</td>
-            </tr>
-            <tr>
-                <td>Station IDs</td>
-                <td>${" ".join(str(id) for id in event["stations"])}</td>
+                <td>Energy</td>
+                <td>${event["energy"]} dB</td>
             </tr>
         </table>
 
-        <br>
     </body>
 </html>

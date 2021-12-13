@@ -31,37 +31,17 @@
 
         <img src="daily.png">
 
-        <h1>Confirmed Events (${len([i for i in db["events"] if len(i["stations"]) > 1])})</h1>
+        <h1>Detections (${len(db['events'])})</h1>
         <table>
             <tr>
                 <th>Time</th>
-                <th>Frequency (MHz)</th>
-                <th>Detections</th>
-            </tr>
-% for e in reversed(sorted(db['events'], key=lambda k: k['datetime_str'])):
-    % if len(e["stations"]) > 1:
-            <tr>
-                <td><a href="${e['datetime_str']}_${e['center_frequency']}.html">${e["datetime_readable"]}</a></td>
-                <td>${'{0:.3f}'.format(e["center_frequency"]/1E6)}</td>
-                <td style="background: ${'magenta' if len(e['stations']) > 2 else 'black'};">${len(e["stations"])}</td>
-            </tr>
-    % endif
-% endfor
-        </table>
-
-        <h1>All Events (${len(db['events'])})</h1>
-        <table>
-            <tr>
-                <th>Time</th>
-                <th>Frequency (MHz)</th>
-                <th>Detections</th>
+                <th>Energy (dB)</th>
                 <th colspan="3">Stations Online</th>
             </tr>
 % for e in reversed(sorted(db['events'], key=lambda k: k['datetime_str'])):
             <tr>
-                <td><a href="${e['datetime_str']}_${e['center_frequency']}.html">${e["datetime_readable"]}</a></td>
-                <td>${'{0:.3f}'.format(e["center_frequency"]/1E6)}</td>
-                <td style="background: ${'magenta' if len(e['stations']) > 1 else 'black'};">${len(e["stations"])}</td>
+                <td><a href="${e['datetime_str']}.html">${e["datetime_readable"]}</a></td>
+                <td>${e["energy"]}</td>
         % for station_id in (1,2,3):
                 <td style="background: ${'green' if station_id in e['stations_online'] else 'red'}; text-align: center;">${station_id}</td>
         %endfor

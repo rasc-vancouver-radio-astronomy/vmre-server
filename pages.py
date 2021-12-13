@@ -15,14 +15,11 @@ def create_index_page(db):
 
     stations_last_seen = {}
 
-    for station_id, station in config.stations.items():
-        stations_last_seen[station_id] = None
-
-    for datafile in db["files"].values():
+    for datafile in db["files"]:
         station_id = datafile["params"]["station_id"]
         datafile_start_time = datetime.datetime.strptime(datafile["params"]["datetime_started"], config.time_format_data)
         datafile_end_time = datafile_start_time + datetime.timedelta(seconds=datafile["size"]/8/datafile["params"]["bandwidth"])
-        if stations_last_seen[station_id] is None:
+        if station_id not in stations_last_seen:
             stations_last_seen[station_id] = datafile_end_time
         elif stations_last_seen[station_id] < datafile_end_time:
             stations_last_seen[station_id] = datafile_end_time
@@ -60,7 +57,7 @@ def create_plot_pages(db):
         else:
             next_event = None
 
-        html_plot = open(f"html/{event['datetime_str']}_{event['center_frequency']}.html", "w")
+        html_plot = open(f"html/{event['datetime_str']}.html", "w")
         html_plot.write(plot_template.render(
             db=db,
             event=event,
