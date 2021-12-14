@@ -15,7 +15,7 @@ def create_index_page(db):
 
     stations_last_seen = {}
 
-    for datafile in db["files"]:
+    for datafile in db["files"].values():
         station_id = datafile["params"]["station_id"]
         datafile_start_time = datetime.datetime.strptime(datafile["params"]["datetime_started"], config.time_format_data)
         datafile_end_time = datafile_start_time + datetime.timedelta(seconds=datafile["size"]/8/datafile["params"]["bandwidth"])

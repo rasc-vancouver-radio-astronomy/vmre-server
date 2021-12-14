@@ -9,6 +9,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import signal
+import scipy
 
 import config
 
@@ -22,7 +23,7 @@ def plot(db):
         
         event_time = datetime.datetime.strptime(event["datetime_str"], config.time_format)
 
-        for file in db["files"]:
+        for file in db["files"].values():
 
             # Check if station has any data for this event
             start = datetime.datetime.strptime(file["params"]["datetime_started"], config.time_format_data)
@@ -128,7 +129,7 @@ def plot_event(p):
         if os.path.exists(plot_path) and os.path.getmtime(file_path) < os.path.getmtime(plot_path):
             continue
 
-        print(f"Plotting event {event_id} NFFT={NFFT} ({file_path}:{start_idx}:{end_idx}).")
+        print(f"Plotting event {event_id} NFFT={NFFT} ({file_path}[{start_idx}:{end_idx}]).")
 
         plt.figure(figsize=(7*len(iq_slice)/bw/(config.dt),6))
         Pxx, freqs, bins, im = plt.specgram(iq_slice, NFFT=NFFT, Fs=bw, noverlap=NFFT/2, cmap=cc.cm.bmw, xextent=(start_t, start_t+len(iq_slice)/bw))
@@ -143,36 +144,20 @@ def plot_event(p):
         cb = plt.colorbar()
         cb.remove()
 
-        vmin = 10 * np.log10(np.median(Pxx))
-        vmax = 10 * np.log10(np.max(Pxx))
+        #vmin = 10 * np.log10(np.median(Pxx))
+        #vmax = 10 * np.log10(np.max(Pxx))
+        vmin = config.plot_min_dB
+        vmax = config.plot_max_dB
         im.set_clim(vmin=vmin, vmax=vmax)
 
         #plt.colorbar(im).set_label("Power (dB)")
         plt.savefig(plot_path, bbox_inches="tight")
         plt.close()
 
+    # audio = iq_slice.real
+    # audio -= np.mean(audio)
+    # factor = 32767 / (np.max(audio) - np.min(audio))
+    # audio *= factor
+    # scipy.io.wavfile.write(f"plots/{event['datetime_str']}_station{file['station_id']}.wav", params["bandwidth"], audio.astype(np.int16))
+
     return plots
-
-def plot_power(db):
-
-    # WIP
-
-    for day_num in range(config.analyze_days):
-
-        # Ugly...
-        today = datetime.datetime.strptime(datetime.datetime.now().strftime("%Y-%m-%d"), "%Y-%m-%d")
-        tomorrow = today + datetime.timedelta(seconds=24*60*60)
-
-        power = {}
-
-        for filename in db["files"]:
-
-            file = db["files"][filename]
-            params = file["params"]
-
-            datetime_started = datetime.datetime.strptime(params["datetime_started"], "%Y-%m-%d_%H-%M-%S.%f")
-            datetime_finished = datetime_started + datetime.timedelta(seconds=file["size"]//params["bandwidth"]//8)
-
-            # if datetime_started < tomorrow and datetime_finished > today:
-
-                # power[params["station_id"]] = np.zeros(24*60*60)
