@@ -17,6 +17,7 @@ def detect(db):
 
     # For every dt second time period
     # for i in range(cfg.analyze_days * 24*60*60 // cfg.dt):
+    t_analyze = []
     for tstr in db["analyzed"]:
 
         if db["analyzed"][tstr]:
@@ -34,50 +35,67 @@ def detect(db):
             if t > datafile_start and t_end < datafile_end:
                 t_datafiles.append(datafile)
 
-        t_P = []
-        # For each file
-        for datafile in t_datafiles:
-            
-            datafile_start = dt.datetime.strptime(datafile["start"], cfg.time_format)
-            datafile_idx = int((t - datafile_start).total_seconds() * datafile["bandwidth"])
+        t_analyze.append({
+            "t": t,
+            "t_end": t_end,
+            "datafiles": t_datafiles,
+        })
 
-            # Load the data
-            iq_slice = np.fromfile(datafile["filename"], np.complex64, offset=datafile_idx*8, count=cfg.dt*datafile["bandwidth"])
-
-            # Correct DC
-            iq_slice = iq_slice - np.mean(iq_slice)
-
-            # Calculate the spectrogram
-            Pxx, freqs, bins, im = plt.specgram(
-                iq_slice,
-                NFFT=cfg.n,
-                Fs=datafile["bandwidth"],
-                noverlap=cfg.n/2
-            )
-            plt.clf()
-            plt.close()
-
-            t_std = np.std(Pxx)
-            #t_thr = 10**(cfg.clip_dB/10)
-            t_thr = t_std*cfg.sig + np.median(Pxx)
-            Pxx = np.clip(Pxx - t_thr, 0, None)
-            t_P.append(Pxx)
-
-        t_P = np.asarray(t_P)
-        nonzeros = np.count_nonzero(t_P, axis=0)
-        nonzeros = np.clip(nonzeros - 1, 0, 1)
-        P = np.multiply(np.sum(t_P, axis=0), nonzeros)
-        E = 10*np.log10(np.sum(P))
-
-        print(f"t={t} {len(t_datafiles)=} {E=}")
-
-        # Threshold
-        if E > cfg.thr:
-            db["events"].append({
-                "datetime_str": dt.datetime.strftime(t, cfg.time_format),
-                "datetime_readable": dt.datetime.strftime(t, cfg.time_format_readable),
-                "energy": E,
-            })
-            print("Event!")
-        
         db["analyzed"][tstr] = True
+
+    with Pool(None) as p:
+        new_events = p.map(detect_t, t_analyze)
+
+    for event in new_events:
+        if event is not None:
+            db["events"].append(event)
+
+def detect_t(t):
+
+    t_P = []
+    # For each file
+    for datafile in t["datafiles"]:
+        
+        datafile_start = dt.datetime.strptime(datafile["start"], cfg.time_format)
+        datafile_idx = int((t["t"] - datafile_start).total_seconds() * datafile["bandwidth"])
+
+        # Load the data
+        iq_slice = np.fromfile(datafile["filename"], np.complex64, offset=datafile_idx*8, count=cfg.dt*datafile["bandwidth"])
+
+        # Correct DC
+        iq_slice = iq_slice - np.mean(iq_slice)
+
+        # Calculate the spectrogram
+        Pxx, freqs, bins, im = plt.specgram(
+            iq_slice,
+            NFFT=cfg.n,
+            Fs=datafile["bandwidth"],
+            noverlap=cfg.n/2
+        )
+        plt.clf()
+        plt.close()
+
+        t_std = np.std(Pxx)
+        #t_thr = 10**(cfg.clip_dB/10)
+        t_thr = t_std*cfg.sig + np.median(Pxx)
+        Pxx = np.clip(Pxx - t_thr, 0, None)
+        t_P.append(Pxx)
+
+    t_P = np.asarray(t_P)
+    nonzeros = np.count_nonzero(t_P, axis=0)
+    nonzeros = np.clip(nonzeros - 1, 0, 1)
+    P = np.multiply(np.sum(t_P, axis=0), nonzeros)
+    E = 10*np.log10(np.sum(P))
+
+    print(f"t={t['t']} {len(t['datafiles'])=} {E=}")
+
+    # Threshold
+    if E > cfg.thr:
+        print("Event!")
+        return {
+            "datetime_str": dt.datetime.strftime(t["t"], cfg.time_format),
+            "datetime_readable": dt.datetime.strftime(t["t"], cfg.time_format_readable),
+            "energy": E,
+        }
+    else:
+        return None
