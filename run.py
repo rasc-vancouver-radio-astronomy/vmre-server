@@ -22,10 +22,14 @@ def print_box(s):
 def write_database(db):
 
     print(f"Writing database.")
-    db["last_updated"] = dt.datetime.now().strftime(cfg.time_format)
+    now = dt.datetime.now()
+    db["last_updated"] = now.strftime(cfg.time_format)
+    db["last_updated_readable"] = now.strftime(cfg.time_format_readable)
     json.dump(db, open("vmre_db.json", "w"), indent=4, sort_keys=True)
 
 def find_files(db):
+
+    t_analyze = []
 
     # Find the start and end datetimes for each file
     for station in cfg.stations.values():
@@ -66,12 +70,12 @@ def find_files(db):
 
             today = dt.datetime.now()
             td = today - datetime_started
-            if td.days > cfg.analyze_days:
+            if td.days > cfg.analyze_days or td.days < cfg.analyze_days_up_to:
                 continue
 
             datetime_ended = datetime_started + dt.timedelta(seconds=(file_size//8)/params["bandwidth"])
 
-            if iq_filename not in db["files"]:
+            if iq_filename not in db["files"] or db["files"][iq_filename]["size"] != file_size:
             
                 db["files"][iq_filename] = {
                     "filename": iq_filename,
@@ -81,24 +85,10 @@ def find_files(db):
                     "frequency": params["center_frequency"],
                     "station_id": params["station_id"],
                     "params": params,
-                    "size": file_size
+                    "size": file_size,
+                    "analyze": True,
                 }
             
-            if iq_filename not in db["files"] or db["files"][iq_filename]["size"] != file_size:
-
-                for tstr in db["analyzed"]:
-                    t = dt.datetime.strptime(tstr, cfg.time_format)
-                    if t >= datetime_started and t <= datetime_ended:
-                        db["analyzed"][tstr] = False
-                
-                events_to_delete = []
-                for event_id, event in enumerate(db["events"]):
-                    t = dt.datetime.strptime(event["datetime_str"], cfg.time_format)
-                    if t >= datetime_started and t <= datetime_ended:
-                        events_to_delete.append(event_id)
-                for event_id in reversed(events_to_delete):
-                    del db["events"][event_id]
-
 def main():
 
     set_start_method("spawn") # Fix multiprocessing library causing hangs
@@ -113,18 +103,9 @@ def main():
     else:
         print("No database found. Creating a new one...")
         db = {
-            "events": [],
+            "events": {},
             "files": {},
-            "analyzed": {},
         }
-
-    print("Updating analyzed array.")
-    today = dt.datetime.strptime(dt.datetime.now().strftime("%Y%m%d"), "%Y%m%d")
-    t0 = today - dt.timedelta(days=cfg.analyze_days) + dt.timedelta(days=1)
-    for i in range(cfg.analyze_days*24*60*60 // cfg.dt):
-        t = t0 + dt.timedelta(seconds=i*cfg.dt)
-        if t.strftime(cfg.time_format) not in db["analyzed"]:
-            db["analyzed"][t.strftime(cfg.time_format)] = False
 
     os.makedirs("html", exist_ok=True)
     os.makedirs("plots", exist_ok=True)

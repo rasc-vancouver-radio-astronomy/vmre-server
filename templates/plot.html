@@ -9,23 +9,23 @@
     <body>
         <table>
             <tr>
-                <td>
+                <td><h1>
 % if prev_event is not None:
                     <a href="${prev_event['datetime_str']}.html">Prev</a><br>
 % else:
                     Prev
 % endif
-                </td>
-                <td>
+                </h1></td>
+                <td><h1>
                     <a href="index.html">Home</a><br>
-                </td>
-                <td>
+                </h1></td>
+                <td><h1>
 % if next_event is not None:
                     <a href="${next_event['datetime_str']}.html">Next</a><br>
 % else:
                     Next
 % endif
-                </td>
+                </h1></td>
             </tr>
         </table>
 
@@ -38,7 +38,7 @@
         <table>
             <tr>
                 <td>Energy</td>
-                <td>${event["energy"]} dB</td>
+                <td>${'{0:.1f}'.format(event["energy"])} dB</td>
             </tr>
         </table>
 

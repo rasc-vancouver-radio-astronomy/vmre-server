@@ -19,7 +19,7 @@ def plot(db):
 
     plots = []
 
-    for event_id, event in enumerate(db["events"]):
+    for event in db["events"].values():
         
         event_time = datetime.datetime.strptime(event["datetime_str"], config.time_format)
 
@@ -55,18 +55,17 @@ def plot(db):
                 "start_t": start_t,
                 "end_idx": end_idx,
                 "event": event,
-                "event_id": event_id,
             })
 
     with Pool(None) as p:
         new_plots = p.map(plot_event, plots)
     
     for i, p in enumerate(plots):
-        db["events"][plots[i]["event_id"]]["plots"] += new_plots[i]
+        db["events"][plots[i]["event"]["datetime_str"]]["plots"] += new_plots[i]
 
     # Generate 'daily detections' chart. Create y-axis first
     events_per_day = [0] * (config.analyze_days)
-    for e in db['events']:
+    for e in db['events'].values():
         today = datetime.datetime.strptime(datetime.datetime.now().strftime("%Y%m%d"), "%Y%m%d")
         event_time = datetime.datetime.strptime(datetime.datetime.strptime(e["datetime_str"], config.time_format).strftime("%Y%m%d"), "%Y%m%d")
         day_delta = (today - event_time).days
@@ -95,6 +94,20 @@ def plot(db):
     plt.savefig("plots/daily.png")
     plt.close()
 
+    # Create time-of-day chart
+    hours = [0]*24
+    for e in db['events'].values():
+        event_time = datetime.datetime.strptime(e["datetime_str"], config.time_format)
+        hour = event_time.hour
+        hours[hour] += 1
+    plt.style.use('dark_background')
+    plt.bar(range(24), hours)
+    plt.title('VMRE Time-of-Day Chart')
+    plt.xlabel('Hour')
+    plt.ylabel('Number of Detections')
+    plt.tight_layout()
+    plt.savefig("plots/timeofday.png")
+    plt.close()
 
 def plot_event(p):
 
@@ -104,7 +117,6 @@ def plot_event(p):
     start_t = p["start_t"]
     end_idx = p["end_idx"]
     event = p["event"]
-    event_id = p["event_id"]
     
     plt.style.use("dark_background")
 
@@ -129,7 +141,7 @@ def plot_event(p):
         if os.path.exists(plot_path) and os.path.getmtime(file_path) < os.path.getmtime(plot_path):
             continue
 
-        print(f"Plotting event {event_id} NFFT={NFFT} ({file_path}[{start_idx}:{end_idx}]).")
+        print(f"Plotting event {event['datetime_str']} NFFT={NFFT} ({file_path}[{start_idx}:{end_idx}]).")
 
         plt.figure(figsize=(7*len(iq_slice)/bw/(config.dt),6))
         Pxx, freqs, bins, im = plt.specgram(iq_slice, NFFT=NFFT, Fs=bw, noverlap=NFFT/2, cmap=cc.cm.bmw, xextent=(start_t, start_t+len(iq_slice)/bw))

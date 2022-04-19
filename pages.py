@@ -39,7 +39,7 @@ def create_plot_pages(db):
 
     events_to_plot = []
 
-    for event in sorted(db["events"], key=lambda item: item["datetime_str"]):
+    for event in sorted(db["events"].values(), key=lambda item: item["datetime_str"]):
 
         events_to_plot.append(event)
 
