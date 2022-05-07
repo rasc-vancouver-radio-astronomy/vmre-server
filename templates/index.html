@@ -37,12 +37,14 @@
             <tr>
                 <th>Time</th>
                 <th>Energy</th>
+                <th>Observations</th>
                 <th colspan="3">Stations Online</th>
             </tr>
 % for e in reversed(sorted(db['events'].values(), key=lambda k: k['datetime_str'])):
             <tr>
                 <td><a href="${e['datetime_str']}.html">${e["datetime_readable"]}</a></td>
                 <td>${'{0}'.format(int(e["energy"]))}</td>
+                <td>${e["observations"]}</td>
         % for station_id in (1,2,3):
                 <td style="background: ${'green' if station_id in e['stations_online'] else 'red'}; text-align: center;">${station_id}</td>
         %endfor

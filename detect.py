@@ -10,7 +10,8 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import signal
-from scipy.stats.stats import pearsonr
+
+import cv2
 
 import config as cfg
 
@@ -57,12 +58,16 @@ def detect(db):
 
 def detect_t(x):
 
+    np.seterr(divide='ignore') 
+
     t = x[0]
     db = x[1]
     t_P = []
 
     t_start = dt.datetime.fromtimestamp(t)
     t_end = dt.datetime.fromtimestamp(t+cfg.dt)
+
+    t_start_str = dt.datetime.strftime(t_start, cfg.time_format)
 
     # Check which files have complete data for this period
     t_datafiles = []
@@ -72,7 +77,7 @@ def detect_t(x):
         if t_start > datafile_start and t_end < datafile_end:
             t_datafiles.append(datafile)
 
-    if len(t_datafiles) < cfg.detect_num_stations:
+    if not t_datafiles:
         return None
 
     # For each file
@@ -99,32 +104,45 @@ def detect_t(x):
 
         Pxx /= np.median(Pxx)
 
+        if cfg.debug_plots:
+            plt.imsave(f"plots/{datafile['start']}-{datafile_idx}.png", Pxx)
+
+        # Clip noise
         t_std = np.std(Pxx)
-        #t_thr = 10**(cfg.clip_dB/10)
-        # t_thr = t_std*cfg.sig + np.median(Pxx)
         t_thr = t_std*cfg.sig + 1
         Pxx = np.clip(Pxx - t_thr, 0, None)
+        if cfg.debug_plots:
+            plt.imsave(f"plots/{datafile['start']}-{datafile_idx}-clipped.png", Pxx)
+
+        # Apply median filter
+        Pxx = signal.medfilt2d(Pxx, 3)
+        if cfg.debug_plots:
+            plt.imsave(f"plots/{datafile['start']}-{datafile_idx}-median.png", Pxx)
         t_P.append(Pxx)
 
     t_P = np.asarray(t_P)
     nonzeros = np.count_nonzero(t_P, axis=0)
-    nonzeros = np.clip(nonzeros - (cfg.detect_num_stations-1), 0, 1)
-    # P = np.multiply(np.sum(t_P, axis=0), nonzeros)    
-    # np.seterr(divide='ignore') 
-    # E = 10*np.log10(np.sum(P))
-    E = np.sum(nonzeros)
+    if cfg.debug_plots:
+        plt.imsave(f"plots/{t_start_str}-nonzero.png", nonzeros)
 
-    #if E != -math.inf:
-    if E > 0:
-        print(f"t={t_start} {len(t_datafiles)=} {E=}")
+    energies = []
+    observations = 0
+    for i in range(cfg.min_observations-1, len(cfg.stations)):
+        e = np.sum(np.clip(nonzeros - i, 0, 1))
+        energies.append(e)
+        if e >= cfg.thr:
+            observations = i+1
+
+    E = energies[0]
 
     # Threshold
-    if E > cfg.thr:
-        print("Event!")
+    if observations > 0:
+        print(f"t={t_start} {len(t_datafiles)=} {E=} {observations=} {energies=}")
         return {
             "datetime_str": dt.datetime.strftime(t_start, cfg.time_format),
             "datetime_readable": dt.datetime.strftime(t_start, cfg.time_format_readable),
             "energy": float(E),
+            "observations": observations,
         }
     else:
         return None
