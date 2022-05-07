@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>VMRE User Manual</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+    	<h1>Vancouver Meteor Radar Experiment</h1>
+
+    	<p>This page was last updated 2022-05-04.</p>
+
+		<h2>Table of contents</h2>
+		<ul>
+			<li><a href="#introduction">Introduction</a>
+			<li><a href="#website">Understanding the website</a>
+			<!-- <li><a href="#system">How the system works</a> -->
+			<!-- <li><a href="#reading">Further reading</a> -->
+		</ul>
+    	
+    	<h2 id="introduction">Introduction</h2>
+
+		<p>This experiment's goal is to detect meteors and reveal information about them by monitoring radio waves. The principles behind the idea are:</p>
+
+		<ol>
+			<li>Meteors leave a trail of very hot ionized (electrically charged) gas in the atmosphere (E-layer, about 100 kilometres altitude) that disperses after a few minutes. This ionized gas can reflect radio waves.
+			<li>All around North America are powerful radio broadcast stations for TV, transmitting around 10 kilowatts of power. These are free local TV stations that can be received with a regular antenna. Our meteor detection system is a collection of radio receivers tuned to an empty TV channel.
+			<li>Far away stations can't be received by the meteor detectors because the Earth is curved. If a meteor leaves a trail somewhere between the TV broadcast station and our meteor detector, the station's radio signal will appear briefly. Stations as far as 2250 kilometres away can be received!
+		</ol>
+
+		<p>The RASC Vancouver radio astronomy group operates 3 meteor detectors across Surrey and Coquitlam. Each meteor detector station uploads its data every day to a central server. An algorithm running on the server is used to automatically find meteor detections in the recorded data and distinguish them from interference events. The detections show up on the <a href="index.html">front page</a>.</p>
+
+		<h2 id="website">Understanding the website</h2>
+
+		<p>The front page has two summary graphs and then a list of detections. The two summary graphs are the "daily detections" chart and the "time-of-day" chart.</p>
+
+		<h3>The daily detections chart</h3>
+
+		<!-- todo example of daily detections chart -->
+
+		<p>The daily detections chart shows how many detections happened on each day. The horizontal axis is in days, and the vertical axis is the number of detections. We expect to see peaks in the daily detections chart that correspond to meteor showers.</p>
+
+		<h3>The time-of-day chart</h3>
+
+		<!-- todo example of time of day chart -->
+
+		<p>The time-of-day chart shows at what hour of the day the meteor detections are happening. The horizontal axis is the hour of the day in 24 hour time, and the vertical axis is the number of detections. Research shows that the amount of meteors should peak in the morning hours around 06:00 as that is when the zenith is pointing in the direction of Earth's movement around the Sun.</p>
+
+		<h3>The detections</h3>
+
+		<p>We visualize the signals by plotting a <b>spectrogram</b>. A spectrogram shows the frequency spectrum of the signal and how it changes over time.</p>
+
+		<p>In the examples below, the horizontal axis is time. Each of these events is about 10 to 15 seconds. The vertical axis is frequency. If the meteor trail is moving (due to atmospheric winds), the radio signal will be shifted in frequency. If the meteor breaks into multiple pieces that are travelling in different directions, this can show up as multiple lines on the spectrogram.</p>
+
+		<!-- todo examples of meteors -->
+
+		<p>Since the VMRE system consists of 3 detectors, on each detection page there are three spectrogram plots.</p>
+
+		<p>Each detection is rated with an "Energy" value. This number is a rating that the algorithm calculates to decide how meteor-like the detection was. If the algorithm is working properly, a higher energy number is more likely to be a large meteor.</p>
+
+<!--
+		<h2 id="system">How the algorithm works</h2>
+
+		<p>The algorithm roughly follows this procedure:</p>
+
+		<ul>
+			<li>The spectrogram from each station is computed for every 30 second period of time.
+			<li>The standard deviation of each spectrogram is computed.
+			<li>The background noise is "blanked" out by clipping all pixel values in the spectrogram that are below sigma standard deviations above the median pixel value.
+			<li>The remaining non-zero pixels are set to a value of 1.
+			<li>Any pixels that are zero in any of the stations' spectrograms are set to zero.
+			<li>The remaining non-zero pixels are summed to create an "Energy" value.
+		</ul>
+    	
+    	<h2 id="reading">Further reading</h2>
+-->
+
+    </body>
+</html>
