@@ -1,9 +1,7 @@
 #!/bin/bash
 
 rm vmre_db.json
-rm -f plots/*
-rm -f html/*
-rm -f events/*
-rm -f power/*
-rm -f site/*
+find plots/ -type f -delete
+find html/ -type f -delete
+find site/ -type f -delete
 
