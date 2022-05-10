@@ -12,27 +12,41 @@
 
         <p>VMRE is run by members of <a href="https://rasc-vancouver.com/">RASC Vancouver</a>. Confused about what's going on here? <a href="manual.html">This page will help.</a> Have questions? Email me at <a href="mailto:prestonthompson@fastmail.com">prestonthompson@fastmail.com</a></p>
 
-        <p>Last updated ${db['last_updated_readable']}</p>
+        <p>This page was last updated ${db['last_updated_readable']}.</p>
 
         <p>Showing last ${config.analyze_days} days worth of data.</p>
+
+		<h2>Station status</h2>
 
         <table>
             <tr>
                 <th>Station ID</th>
-                <th>Last signal timestamp</th>
+                <th>Last contact</th>
+                <th>Operator</th>
+                <th>Location</th>
+                <th>Antenna</th>
+                <th>Radio</th>
+                <th>Computer</th>
             </tr>
 % for station_id in stations_last_seen:
             <tr>
                 <td>${str(station_id)}</td>
-                <td>${stations_last_seen[station_id]}</td>
+                <td style="background: ${'green' if stations_ok[station_id] else 'red'};">${stations_last_seen[station_id]}</td>
+                <td>${config.stations[station_id]["operator"]}</td>
+                <td>${config.stations[station_id]["location"]}</td>
+                <td>${config.stations[station_id]["antenna"]}</td>
+                <td>${config.stations[station_id]["radio"]}</td>
+                <td>${config.stations[station_id]["computer"]}</td>
             </tr>
 % endfor
         </table>
 
+		<h2>Summary charts</h2>
+
         <img src="daily.png"><br>
         <img src="timeofday.png">
 
-        <h1>Detections (${len(db['events'])})</h1>
+        <h2>Detections (${len(db['events'])})</h2>
         <table>
             <tr>
                 <th>Time</th>

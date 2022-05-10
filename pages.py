@@ -14,6 +14,7 @@ def pages(db):
 def create_index_page(db):
 
     stations_last_seen = {}
+    stations_ok = {}
 
     for datafile in db["files"].values():
         station_id = datafile["params"]["station_id"]
@@ -25,11 +26,17 @@ def create_index_page(db):
             stations_last_seen[station_id] = datafile_end_time
 
     for station_id in stations_last_seen:
+        if (datetime.datetime.now() - stations_last_seen[station_id]).total_seconds() > (2*60*60):
+            stations_ok[station_id] = False
+        else:
+            stations_ok[station_id] = True
+
+    for station_id in stations_last_seen:
         stations_last_seen[station_id] = datetime.datetime.strftime(stations_last_seen[station_id], config.time_format_readable)
 
     index_template = Template(filename="templates/index.html")
     html_index = open("html/index.html", "w")
-    html_index.write(index_template.render(db=db, config=config, stations_last_seen=stations_last_seen))
+    html_index.write(index_template.render(db=db, config=config, stations_last_seen=stations_last_seen, stations_ok=stations_ok))
 
 def create_plot_pages(db):
 
