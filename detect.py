@@ -15,6 +15,8 @@ import cv2
 
 import config as cfg
 
+c = 299792458.0
+
 def detect(db):
 
     # For every dt second time period
@@ -125,6 +127,11 @@ def detect_t(x):
     if cfg.debug_plots:
         plt.imsave(f"plots/{t_start_str}-1-combined.png", nonzeros)
 
+    rows = np.sum(nonzeros, axis=1)
+    freqshift = np.argmax(rows)* datafile['bandwidth']/len(rows) - datafile["bandwidth"]/2
+    f = datafile["frequency"]
+    velocity = c*freqshift/f
+
     energies = []
     observations = 0
     for i in range(cfg.min_observations-1, len(cfg.stations)):
@@ -140,12 +147,14 @@ def detect_t(x):
 
     # Threshold
     if observations > 0:
-        print(f"t={t_start} {len(t_datafiles)=} {E=} {observations=} {energies=}")
+        print(f"t={t_start} {len(t_datafiles)=} {E=} {observations=} {energies=} {freqshift=} {velocity=}")
         return {
             "datetime_str": dt.datetime.strftime(t_start, cfg.time_format),
             "datetime_readable": dt.datetime.strftime(t_start, cfg.time_format_readable),
             "energy": float(E),
             "observations": observations,
+            "freqshift": freqshift,
+            "velocity": velocity,
         }
     else:
         return None

@@ -53,6 +53,8 @@
             <tr>
                 <th>Time</th>
                 <th>Energy</th>
+                <th>Frequency Shift (Hz)</th>
+                <th>Velocity (m/s)</th>
                 <th>Observations</th>
                 <th colspan="3">Stations Online</th>
             </tr>
@@ -60,6 +62,8 @@
             <tr>
                 <td><a href="${e['datetime_str']}.html">${e["datetime_readable"]}</a></td>
                 <td>${'{0}'.format(int(e["energy"]))}</td>
+                <td>${'{0:.2f}'.format(e["freqshift"])}</td>
+                <td>${'{0:.1f}'.format(e["velocity"])}</td>
                 <td>${e["observations"]}</td>
         % for station_id in (1,2,3):
                 <td style="background: ${'green' if station_id in e['stations_online'] else 'red'}; text-align: center;">${station_id}</td>
