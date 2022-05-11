@@ -4,3 +4,11 @@ This is the server side software for the Vancouver Meteor Radar Experiment (VMRE
 
 This software runs on the VMRE server using an hourly cron job that executes `run.py && rsync.sh`. The VMRE receiver stations upload their data via rsync every hour.
 
+## Python Dependencies
+
+* colorcet
+* numpy
+* scipy
+* mako
+* matplotlib
+

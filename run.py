@@ -4,7 +4,6 @@ import datetime as dt
 import json
 from multiprocessing import set_start_method
 import os
-import sqlite3
 import time
 
 from detect import detect

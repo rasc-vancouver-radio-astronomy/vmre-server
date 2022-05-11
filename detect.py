@@ -11,8 +11,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import signal
 
-import cv2
-
 import config as cfg
 
 c = 299792458.0
