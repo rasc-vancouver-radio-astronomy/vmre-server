@@ -64,14 +64,18 @@ def plot(db):
         db["events"][plots[i]["event"]["datetime_str"]]["plots"] += new_plots[i]
 
     # Generate 'daily detections' chart. Create y-axis first
-    events_per_day = [0] * (config.analyze_days)
+    events_per_day = []
+    for i in range(len(config.stations)):
+        events_per_day.append([0] * (config.analyze_days))
     for e in db['events'].values():
         today = datetime.datetime.strptime(datetime.datetime.now().strftime("%Y%m%d"), "%Y%m%d")
         event_time = datetime.datetime.strptime(datetime.datetime.strptime(e["datetime_str"], config.time_format).strftime("%Y%m%d"), "%Y%m%d")
         day_delta = (today - event_time).days
         if day_delta < config.analyze_days:
-            events_per_day[day_delta] += 1
-    events_per_day.reverse()
+            for i in range(e['observations']):
+                events_per_day[i][day_delta] += 1
+    for i in range(len(config.stations)):
+        events_per_day[i].reverse()
 
     # Create x-axis for 'daily detections' chart
     x = []
@@ -83,8 +87,10 @@ def plot(db):
     fig, ax = plt.subplots()
     fig.set_figheight(5)
     fig.set_figwidth(15)
-    plt.bar(x, events_per_day)
+    for i in range(config.min_observations-1, len(config.stations)):
+        plt.bar(x, events_per_day[i], label=f"{i+1} Observations")
     # plt.xticks(rotation=90)
+    plt.legend()
     plt.title('VMRE Daily Detections Chart')
     plt.xlabel('Date (MM-DD)')
     plt.ylabel('Number of Detections')
@@ -95,13 +101,18 @@ def plot(db):
     plt.close()
 
     # Create time-of-day chart
-    hours = [0]*24
+    hours = []
+    for i in range(len(config.stations)):
+        hours.append([0]*24)
     for e in db['events'].values():
         event_time = datetime.datetime.strptime(e["datetime_str"], config.time_format)
         hour = event_time.hour
-        hours[hour] += 1
+        for i in range(e["observations"]):
+            hours[i][hour] += 1
     plt.style.use('dark_background')
-    plt.bar(range(24), hours)
+    for i in range(config.min_observations-1, len(config.stations)):
+        plt.bar(range(24), hours[i], label=f"{i+1} Observations")
+    plt.legend()
     plt.title('VMRE Time-of-Day Chart')
     plt.xlabel('Hour')
     plt.ylabel('Number of Detections')
@@ -162,7 +173,7 @@ def plot_event(p):
         vmax = config.plot_max_dB
         im.set_clim(vmin=vmin, vmax=vmax)
 
-        #plt.colorbar(im).set_label("Power (dB)")
+        plt.colorbar(im).set_label("Relative Power (dB)")
         plt.savefig(plot_path, bbox_inches="tight")
         plt.close()
 

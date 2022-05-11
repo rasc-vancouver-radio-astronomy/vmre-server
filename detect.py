@@ -127,6 +127,8 @@ def detect_t(x):
     if cfg.debug_plots:
         plt.imsave(f"plots/{t_start_str}-1-combined.png", nonzeros)
 
+    E = np.sum(nonzeros)
+
     rows = np.sum(nonzeros, axis=1)
     freqshift = np.argmax(rows)* datafile['bandwidth']/len(rows) - datafile["bandwidth"]/2
     f = datafile["frequency"]
@@ -140,10 +142,8 @@ def detect_t(x):
             plt.imsave(f"plots/{t_start_str}-2-observations-{i+1}.png", tmp)
         e = np.sum(tmp)
         energies.append(e)
-        if e >= cfg.thr:
+        if e >= cfg.thr[i]:
             observations = i+1
-
-    E = energies[0]
 
     # Threshold
     if observations > 0:
