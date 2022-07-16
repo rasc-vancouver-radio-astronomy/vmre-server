@@ -8,7 +8,6 @@ import time
 
 from detect import detect
 from plot import plot
-from pages import pages
 
 import config as cfg
 
@@ -114,9 +113,6 @@ def main():
 
     print(f"Plotting data. Time is {time.time() - start_time}.")
     plot(db)
-
-    print(f"Generating pages. Time is {time.time() - start_time}.")
-    pages(db)
 
     print(f"VMRE run completed. Time is {time.time() - start_time}.")
 
