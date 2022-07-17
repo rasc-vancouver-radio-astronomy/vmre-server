@@ -93,14 +93,15 @@ def detect_t(x):
         iq_slice = iq_slice - np.mean(iq_slice)
 
         # Calculate the spectrogram
-        Pxx, freqs, bins, im = plt.specgram(
+        freqs, tims, Pxx = signal.spectrogram(
             iq_slice,
-            NFFT=cfg.n,
-            Fs=datafile["bandwidth"],
-            noverlap=cfg.n/2
+            nfft=cfg.n,
+            fs=datafile["bandwidth"],
+            noverlap=cfg.n/2,
+            return_onesided=False
         )
-        plt.clf()
-        plt.close()
+
+        Pxx = np.abs(np.fft.fftshift(Pxx))
 
         Pxx /= np.median(Pxx)
 
