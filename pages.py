@@ -10,6 +10,13 @@ def pages(db):
 
     create_index_page(db)
     create_plot_pages(db)
+    files_to_copy = (
+        "manual.html",
+        "rasc-new-banner.png",
+        "style.css",
+    )
+    for f in files_to_copy:
+        copyfile(f"static/{f}", f"{config.html_path}/{f}")
 
 def create_index_page(db):
 
@@ -35,7 +42,7 @@ def create_index_page(db):
         stations_last_seen[station_id] = datetime.datetime.strftime(stations_last_seen[station_id], config.time_format_readable)
 
     index_template = Template(filename="templates/index.html")
-    html_index = open("html/index.html", "w")
+    html_index = open(f"{config.html_path}/index.html", "w")
     html_index.write(index_template.render(db=db, config=config, stations_last_seen=stations_last_seen, stations_ok=stations_ok))
 
 def create_plot_pages(db):
@@ -64,7 +71,7 @@ def create_plot_pages(db):
         else:
             next_event = None
 
-        html_plot = open(f"html/{event['datetime_str']}.html", "w")
+        html_plot = open(f"{config.html_path}/{event['datetime_str']}.html", "w")
         html_plot.write(plot_template.render(
             db=db,
             event=event,

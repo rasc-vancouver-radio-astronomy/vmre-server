@@ -66,12 +66,12 @@ def plot(db):
     # Generate 'daily detections' chart. Create y-axis first
     events_per_day = []
     for i in range(len(config.stations)):
-        events_per_day.append([0] * (config.analyze_days))
+        events_per_day.append([0] * (config.daily_detections_plot_days))
     for e in db['events'].values():
         today = datetime.datetime.strptime(datetime.datetime.now().strftime("%Y%m%d"), "%Y%m%d")
         event_time = datetime.datetime.strptime(datetime.datetime.strptime(e["datetime_str"], config.time_format).strftime("%Y%m%d"), "%Y%m%d")
         day_delta = (today - event_time).days
-        if day_delta < config.analyze_days:
+        if day_delta < config.daily_detections_plot_days:
             for i in range(e['observations']):
                 events_per_day[i][day_delta] += 1
     for i in range(len(config.stations)):
@@ -79,7 +79,7 @@ def plot(db):
 
     # Create x-axis for 'daily detections' chart
     x = []
-    for i in range(config.analyze_days):
+    for i in range(config.daily_detections_plot_days):
         x.append( (datetime.datetime.today() - datetime.timedelta(i)).strftime("%m-%d") )
     x.reverse()
 
@@ -97,7 +97,7 @@ def plot(db):
     fig.autofmt_xdate()
     plt.xticks(fontsize=9, rotation=90, ha='center')
     plt.tight_layout()
-    plt.savefig("plots/daily.png")
+    plt.savefig(f"{config.html_path}/daily.png")
     plt.close()
 
     # Create time-of-day chart
@@ -117,7 +117,7 @@ def plot(db):
     plt.xlabel('Hour')
     plt.ylabel('Number of Detections')
     plt.tight_layout()
-    plt.savefig("plots/timeofday.png")
+    plt.savefig(f"{config.html_path}/timeofday.png")
     plt.close()
 
 def plot_event(p):
@@ -146,7 +146,7 @@ def plot_event(p):
 
     for NFFT in config.NFFTs:
 
-        plot_path = f"plots/waterfall_{event['datetime_str']}_station{file['station_id']}_FFT{NFFT}.png"
+        plot_path = f"waterfall_{event['datetime_str']}_station{file['station_id']}_FFT{NFFT}.png"
         plots.append(plot_path)
 
         if os.path.exists(plot_path) and os.path.getmtime(file_path) < os.path.getmtime(plot_path):
@@ -174,7 +174,7 @@ def plot_event(p):
         im.set_clim(vmin=vmin, vmax=vmax)
 
         plt.colorbar(im).set_label("Relative Power (dB)")
-        plt.savefig(plot_path, bbox_inches="tight")
+        plt.savefig(f"{config.html_path}/{plot_path}", bbox_inches="tight")
         plt.close()
 
     # audio = iq_slice.real

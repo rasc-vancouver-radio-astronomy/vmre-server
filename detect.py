@@ -18,10 +18,8 @@ c = 299792458.0
 def detect(db):
 
     # For every dt second time period
-    # for i in range(cfg.analyze_days * 24*60*60 // cfg.dt):
     t_analyze = []
     t_regions = []
-    # for tstr in db["analyzed"]:
     for file in db["files"].values():
 
         if not file["analyze"]:

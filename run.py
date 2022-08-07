@@ -66,12 +66,7 @@ def find_files(db):
                 continue
 
             datetime_started = dt.datetime.strptime(params["datetime_started"], cfg.time_format_data)
-
-            today = dt.datetime.now()
-            td = today - datetime_started
-            if td.days > cfg.analyze_days or td.days < cfg.analyze_days_up_to:
-                continue
-
+            
             datetime_ended = datetime_started + dt.timedelta(seconds=(file_size//8)/params["bandwidth"])
 
             if iq_filename not in db["files"] or db["files"][iq_filename]["size"] != file_size:
