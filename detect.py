@@ -135,15 +135,16 @@ def detect_t(x):
         if cfg.debug_plots:
             plt.imsave(f"plots/{t_start_str}-2-observations-{i+1}.png", tmp)
 
-        # Calculate Doppler
-        rows = np.sum(tmp, axis=1)
-        freqshift = np.argmax(rows) * datafile['bandwidth']/len(rows) - datafile['bandwidth']/2
-        velocity = c*freqshift/datafile['frequency']
-
         e = np.sum(tmp)
         energies.append(e)
+
         if e >= cfg.thr[i]:
             observations = i+1
+
+            # Calculate Doppler
+            rows = np.sum(tmp, axis=1)
+            freqshift = np.argmax(rows) * datafile['bandwidth']/len(rows) - datafile['bandwidth']/2
+            velocity = c*freqshift/datafile['frequency']
 
     # Threshold
     if observations > 0:
