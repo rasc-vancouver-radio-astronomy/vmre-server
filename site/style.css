@@ -1,0 +1,25 @@
+body {
+    background-color: black;
+    color: white;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid white;
+}
+
+th, td {
+    padding: 5px;
+}
+
+a {
+    color: lightskyblue;
+}
+
+a:visited {
+    color: violet;
+}
+
