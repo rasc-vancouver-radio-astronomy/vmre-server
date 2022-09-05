@@ -13,76 +13,52 @@ from scipy import signal
 
 import config as cfg
 
-c = 299792458.0
+c = 299792458.0 # speed of light
 
-def detect(db):
+def detect(db, files):
 
     # For every dt second time period
     t_analyze = []
-    t_regions = []
-    for file in db["files"].values():
 
-        if not file["analyze"]:
-            continue
+    t_start = (dt.datetime.now() - dt.timedelta(days=cfg.days)).replace(hour=0,minute=0,second=0,microsecond=0)
 
-        t_start = dt.datetime.strptime(file["params"]["datetime_started"], cfg.time_format_data)
-        t_end = t_start + dt.timedelta(seconds=(file["size"]//8)/file["params"]["bandwidth"])
-
-        t_start = t_start.timestamp()
-        t_end = t_end.timestamp()
-
-        t_start = int(math.ceil(t_start/30)*30)
-        t_end = int(math.floor(t_end/30)*30)
-
-        for t in range(t_start, t_end, cfg.dt):
-            already_analyzed = False
-            for region in t_regions:
-                if t >= region[0] and t+cfg.dt <= region[1]:
-                    already_analyzed = True
-                    break
-            if not already_analyzed:
-                t_analyze.append([t,db])
-        
-        t_regions.append((t_start, t_end))
-
-        file["analyze"] = False
+    for i in range(cfg.days*24*60*60//cfg.dt):
+        t = i * cfg.dt
+        t_analyze.append((t_start+dt.timedelta(seconds=t),files))
 
     with Pool(None) as p:
         new_events = p.map(detect_t, t_analyze)
+    
+    # new_events = map(detect_t, t_analyze)
 
     for event in new_events:
         if event is not None:
-            db["events"][event["datetime_str"]] = event
+            db["events"].append(event)
 
 def detect_t(x):
 
     np.seterr(divide='ignore') 
 
-    t = x[0]
-    db = x[1]
+    t_start = x[0]
+    t_end = t_start + dt.timedelta(seconds=cfg.dt)
+    files = x[1]
     t_P = []
-
-    t_start = dt.datetime.fromtimestamp(t)
-    t_end = dt.datetime.fromtimestamp(t+cfg.dt)
-
-    t_start_str = dt.datetime.strftime(t_start, cfg.time_format)
 
     # Check which files have complete data for this period
     t_datafiles = []
-    for datafile in db["files"].values():
-        datafile_start = dt.datetime.strptime(datafile["start"], cfg.time_format)
-        datafile_end = dt.datetime.strptime(datafile["end"], cfg.time_format)
-        if t_start > datafile_start and t_end < datafile_end:
+    for datafile in files:
+        if t_start > datafile["start"] and t_end < datafile["end"]:
             t_datafiles.append(datafile)
 
     if not t_datafiles:
         return None
 
+    t_start_str = dt.datetime.strftime(t_start, cfg.time_format)
+
     # For each file
     for datafile in t_datafiles:
         
-        datafile_start = dt.datetime.strptime(datafile["start"], cfg.time_format)
-        datafile_idx = int((t_start - datafile_start).total_seconds() * datafile["bandwidth"])
+        datafile_idx = int((t_start - datafile["start"]).total_seconds() * datafile["bandwidth"])
 
         # Load the data
         iq_slice = np.fromfile(datafile["filename"], np.complex64, offset=datafile_idx*8, count=cfg.dt*datafile["bandwidth"])
@@ -128,7 +104,7 @@ def detect_t(x):
 
     energies = []
     observations = 0
-    for i in range(cfg.min_observations-1, len(cfg.stations)):
+    for i in range(0, len(cfg.stations)):
         tmp = np.clip(nonzeros - i, 0, 1)
         if cfg.debug_plots:
             plt.imsave(f"plots/{t_start_str}-2-observations-{i+1}.png", tmp)
